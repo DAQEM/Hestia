@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hestia.API", "Hestia.API\Hestia.API.csproj", "{3D467EEC-D78B-40F6-8909-D569321105C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hestia.Domain", "Hestia.Domain\Hestia.Domain.csproj", "{BA0323F8-C39F-40E8-966B-5BD89BCEBC83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hestia.Infrastructure", "Hestia.Infrastructure\Hestia.Infrastructure.csproj", "{0F20571E-BC6D-4F0C-B729-7440840034AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hestia.Application", "Hestia.Application\Hestia.Application.csproj", "{8DF86880-788F-4680-B5B6-7D6102A8B138}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3D467EEC-D78B-40F6-8909-D569321105C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3D467EEC-D78B-40F6-8909-D569321105C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3D467EEC-D78B-40F6-8909-D569321105C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3D467EEC-D78B-40F6-8909-D569321105C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA0323F8-C39F-40E8-966B-5BD89BCEBC83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA0323F8-C39F-40E8-966B-5BD89BCEBC83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA0323F8-C39F-40E8-966B-5BD89BCEBC83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA0323F8-C39F-40E8-966B-5BD89BCEBC83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F20571E-BC6D-4F0C-B729-7440840034AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F20571E-BC6D-4F0C-B729-7440840034AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F20571E-BC6D-4F0C-B729-7440840034AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F20571E-BC6D-4F0C-B729-7440840034AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DF86880-788F-4680-B5B6-7D6102A8B138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DF86880-788F-4680-B5B6-7D6102A8B138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DF86880-788F-4680-B5B6-7D6102A8B138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DF86880-788F-4680-B5B6-7D6102A8B138}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
