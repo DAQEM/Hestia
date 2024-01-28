@@ -4,3 +4,5 @@ obj
 .idea
 
 *.DotSettings.user
+
+Hestia.API/appsettings.Developmentss.json

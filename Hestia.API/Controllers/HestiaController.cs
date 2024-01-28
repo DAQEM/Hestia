@@ -5,6 +5,8 @@ namespace Hestia.API.Controllers;
 
 public abstract class HestiaController(ILogger<HestiaController> logger) : ControllerBase
 {
+    protected readonly ILogger<HestiaController> Logger = logger;
+    
     protected IActionResult HandleResult<T>(IResult<T> result)
     {
         return result.Success ? Ok(result.Data) : HandleFailedResult(result);
@@ -19,12 +21,12 @@ public abstract class HestiaController(ILogger<HestiaController> logger) : Contr
 
         if (result.Message is null)
         {
-            logger.LogError("Result failed but no message was provided");
+            Logger.LogError("Result failed but no message was provided");
             result.Message = "An unknown error occurred";
         }
         else
         {
-            logger.LogError("Result failed: {Message}", result.Message);
+            Logger.LogError("Result failed: {Message}", result.Message);
         }
         return BadRequest(result.Message);
     }
@@ -33,7 +35,7 @@ public abstract class HestiaController(ILogger<HestiaController> logger) : Contr
     {
         if (result is { Success: false, Message: not null })
         {
-            logger.LogWarning("Request failed: {Message}", result.Message);
+            Logger.LogWarning("Request failed: {Message}", result.Message);
         }
     }
 }

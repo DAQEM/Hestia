@@ -4,7 +4,7 @@ namespace Hestia.API.Extensions;
 
 public static class ServicesExtension
 {
-    public static void AddServices(this IServiceCollection services)
+    public static void AddHestiaServices(this IServiceCollection services)
     {
         services.AddScoped<IProductService, ProductService>();
     }

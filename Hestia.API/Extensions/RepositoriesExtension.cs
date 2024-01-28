@@ -5,7 +5,7 @@ namespace Hestia.API.Extensions;
 
 public static class RepositoriesExtension
 {
-    public static void AddRepositories(this IServiceCollection services)
+    public static void AddHestiaRepositories(this IServiceCollection services)
     {
         services.AddScoped<IProductRepository, ProductRepository>();
     }

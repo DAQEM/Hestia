@@ -6,7 +6,7 @@ namespace Hestia.API.Extensions;
 
 public static class DatabaseExtension
 {
-    public static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
+    public static void AddHestiaDatabase(this IServiceCollection services, IConfiguration configuration)
     {
         string? connectionString = configuration["Database:ConnectionString"];
         

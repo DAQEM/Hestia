@@ -1,15 +1,29 @@
+using System.Text.Json;
 using Hestia.API.Extensions;
+using Hestia.Infrastructure.Application;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddDatabase(builder.Configuration);
+builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("Application"));
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//Make sure the json response is snake_case
+builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
 
-builder.Services.AddRepositories();
-builder.Services.AddServices();
+builder.Services.AddControllers()
+    //Make sure the json request is snake_case
+    .AddJsonOptions(options => options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
+builder.Services.AddHestiaDatabase(builder.Configuration);
+
+builder.Services.AddHestiaRepositories();
+builder.Services.AddHestiaServices();
+
+builder.Services.AddHestiaAuthentication(builder.Configuration);
+
+builder.Services.AddHestiaSwagger();
+
+builder.Services.AddHestiaCors();
+
+builder.Services.AddHttpClient();
 
 WebApplication app = builder.Build();
 
@@ -17,10 +31,13 @@ app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseHestiaSwagger();
 }
 
 app.UseHttpsRedirection();
+
+app.UseHestiaAuthentication();
+
+app.UseHestiaCors();
 
 app.Run();
