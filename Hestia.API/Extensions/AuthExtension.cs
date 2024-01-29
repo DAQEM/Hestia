@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using AspNet.Security.OAuth.Discord;
-using Hestia.API.Controllers.V1;
 using Hestia.API.Exceptions;
+using Hestia.Application.Dtos.User;
+using Hestia.Application.Services;
 using Hestia.Domain.Models;
 using Hestia.Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -44,11 +44,8 @@ public static class AuthExtension
 
                 options.Scope.Add("email");
 
-                options.Events.OnCreatingTicket = context =>
+                options.Events.OnCreatingTicket = async context =>
                 {
-                    HestiaDbContext dbContext =
-                        context.HttpContext.RequestServices.GetRequiredService<HestiaDbContext>();
-
                     ClaimsPrincipal? contextPrincipal = context.Principal;
                     string? accountId = contextPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier);
                     string? name = contextPrincipal?.FindFirstValue(ClaimTypes.Name);
@@ -65,17 +62,17 @@ public static class AuthExtension
                         expiresIn == null)
                     {
                         context.HttpContext.Response.StatusCode = 401;
-                        return Task.CompletedTask;
+                        return;
                     }
 
-                    User user = new()
+                    UserDto user = new()
                     {
                         Name = name,
                         Email = email,
                         Image = $"https://cdn.discordapp.com/avatars/{accountId}/{image}",
                         Accounts =
                         [
-                            new Account
+                            new AccountDto
                             {
                                 ProviderAccountId = accountId,
                                 Type = "oauth",
@@ -89,10 +86,11 @@ public static class AuthExtension
                         ]
                     };
 
+                    UserService userService =
+                        context.HttpContext.RequestServices.GetRequiredService<UserService>();
+                    
                     //check if user exists
-                    User? existingUser = dbContext.Users
-                        .Include(user => user.Accounts)
-                        .FirstOrDefault(u => u.Email == user.Email);
+                    UserDto? existingUser = (await userService.GetUserWithAccountByEmailAsync(email)).Data;
 
                     if (existingUser != null)
                     {
@@ -101,21 +99,31 @@ public static class AuthExtension
                         existingUser.Email = user.Email;
                         existingUser.Image = user.Image;
 
+                        List<AccountDto> existingAccounts = existingUser.Accounts!;
+                        
                         //replace account with provider discord
-                        existingUser.Accounts.RemoveAll(a => a.Provider == "discord");
-                        existingUser.Accounts.Add(user.Accounts.First(a => a.Provider == "discord"));
+                        AccountDto? existingAccount = existingAccounts.FirstOrDefault(x =>
+                            x.Provider == "discord" && x.ProviderAccountId == accountId);
+                        
+                        if (existingAccount != null)
+                        {
+                            existingAccount.AccessToken = accessToken;
+                            existingAccount.RefreshToken = refreshToken;
+                            existingAccount.TokenType = tokenType;
+                            existingAccount.ExpiresAt = DateTime.UtcNow.AddSeconds(expiresIn.Value.Seconds).Ticks;
+                        }
+                        else
+                        {
+                            existingAccounts.Add(user.Accounts![0]);
+                        }
 
-                        dbContext.Users.Update(existingUser);
+                        await userService.UpdateAsync(existingUser.Id, existingUser);
                     }
                     else
                     {
                         //create user
-                        dbContext.Users.Add(user);
+                        await userService.AddAsync(user);
                     }
-
-                    dbContext.SaveChanges();
-
-                    return Task.CompletedTask;
                 };
             });
     }

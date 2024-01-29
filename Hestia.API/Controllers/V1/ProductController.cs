@@ -8,7 +8,7 @@ namespace Hestia.API.Controllers.V1;
 [ApiController]
 [ApiExplorerSettings(GroupName = "v1")]
 [Route("api/v1/[controller]")]
-public class ProductController(IProductService productService, ILogger<ProductController> logger)
+public class ProductController(ProductService productService, ILogger<ProductController> logger)
     : HestiaController(logger)
 {
     [HttpGet]

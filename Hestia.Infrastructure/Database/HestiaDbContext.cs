@@ -31,5 +31,9 @@ public class HestiaDbContext : DbContext
             .HasMany(u => u.Roles)
             .WithMany(r => r.Users)
             .UsingEntity(j => j.ToTable("UserRoles"));
+        
+        builder.Entity<Account>()
+            .HasIndex(a => new {a.Provider, a.ProviderAccountId})
+            .IsUnique();
     }
 }

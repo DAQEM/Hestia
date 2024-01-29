@@ -6,7 +6,6 @@ using Hestia.Domain.Repositories;
 namespace Hestia.Application.Services;
 
 public class ProductService(IProductRepository productRepository)
-    : IProductService
 {
     public async Task<IResult<ProductDto?>> GetAsync(int id)
     {

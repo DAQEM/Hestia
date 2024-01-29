@@ -25,38 +25,17 @@ public class ProductRepository(HestiaDbContext dbContext) : IProductRepository
         return entity;
     }
 
-    public async Task<Product> UpdateAsync(int id, Product entity)
+    public Task<Product> UpdateAsync(int id, Product entity)
     {
-        Product? product = await dbContext.Products.FindAsync(id).ConfigureAwait(false);
-
-        if (product is null)
-        {
-            throw new ProductNotFoundException(id);
-        }
-
-        product.Name = entity.Name;
-        product.Description = entity.Description;
-        product.Summary = entity.Summary;
-        product.ImageUrl = entity.ImageUrl;
-        product.Downloads = entity.Downloads;
-        product.GitHubUrl = entity.GitHubUrl;
-        product.CurseForgeUrl = entity.CurseForgeUrl;
-        product.ModrinthUrl = entity.ModrinthUrl;
-        
-        return product;
+        dbContext.Products.Update(entity);
+        return Task.FromResult(entity);
     }
 
     public async Task<bool> DeleteAsync(int id)
     {
         Product? product = await dbContext.Products.FindAsync(id).ConfigureAwait(false);
-
-        if (product is null)
-        {
-            return false;
-        }
-
+        if (product is null) return false;
         dbContext.Products.Remove(product);
-
         return true;
     }
 

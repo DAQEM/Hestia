@@ -5,4 +5,4 @@ obj
 
 *.DotSettings.user
 
-Hestia.API/appsettings.Developmentss.json
+Hestia.API/appsettings.Development.json
