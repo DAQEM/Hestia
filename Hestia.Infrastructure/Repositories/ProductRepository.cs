@@ -1,7 +1,6 @@
 ﻿using Hestia.Domain.Models;
 using Hestia.Domain.Repositories;
 using Hestia.Infrastructure.Database;
-using Hestia.Infrastructure.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hestia.Infrastructure.Repositories;
