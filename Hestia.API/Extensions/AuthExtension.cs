@@ -1,6 +1,10 @@
 using Hestia.API.Exceptions;
+using Hestia.API.Handlers;
 using Hestia.Infrastructure.Events.Authentication;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Hestia.API.Extensions;
 
@@ -14,9 +18,17 @@ public static class AuthExtension
             {
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             })
-            .AddCookie(options =>
+            .AddHestiaCookieAndBearerAuthentication(CookieAuthenticationDefaults.AuthenticationScheme, null, options =>
             {
-                options.LoginPath = "/api/v1/authentication/login/discord";
+                options.Events.OnRedirectToLogin = context =>
+                {
+                    context.Response.StatusCode = 401;
+                    //log comma separated keys
+                    Console.WriteLine("Keys: " +
+                                      context.Request.Cookies.Keys.Aggregate("",
+                                          (current, key) => current + $"{key}, "));
+                    return Task.CompletedTask;
+                };
             })
             .AddDiscord(options =>
             {
@@ -45,5 +57,16 @@ public static class AuthExtension
     {
         app.UseAuthentication();
         app.UseAuthorization();
+    }
+
+    private static AuthenticationBuilder AddHestiaCookieAndBearerAuthentication(this AuthenticationBuilder builder,
+        string authenticationScheme, string? displayName, Action<CookieAuthenticationOptions> configureOptions)
+    {
+        builder.Services.TryAddEnumerable(ServiceDescriptor
+            .Singleton<IPostConfigureOptions<CookieAuthenticationOptions>, PostConfigureCookieAuthenticationOptions>());
+        builder.Services.AddOptions<CookieAuthenticationOptions>(authenticationScheme).Validate(
+            o => o.Cookie.Expiration == null, "Cookie.Expiration is ignored, use ExpireTimeSpan instead.");
+        return builder.AddScheme<CookieAuthenticationOptions, HestiaAuthenticationHandler>(authenticationScheme,
+            displayName, configureOptions);
     }
 }

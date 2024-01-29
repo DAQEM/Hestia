@@ -88,5 +88,10 @@ public static class OnCreatingTicketEvent
             //create user
             await userService.AddAsync(user);
         }
+        
+        contextPrincipal.AddIdentity(new ClaimsIdentity(new[]
+        {
+            new Claim("image", user.Image)
+        }));
     }
 }

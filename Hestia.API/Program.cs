@@ -1,6 +1,4 @@
-using System.Text.Json;
 using Hestia.API.Extensions;
-using Hestia.Infrastructure.Application;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -27,5 +25,6 @@ if (app.Environment.IsDevelopment())
 app.UseHestiaCors();
 app.UseHttpsRedirection();
 app.UseHestiaAuthentication();
+app.UseHestiaDatabase();
 
 app.Run();

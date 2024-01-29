@@ -23,4 +23,14 @@ public static class DatabaseExtension
             });
         });
     }
+
+    public static void UseHestiaDatabase(this IApplicationBuilder app)
+    {
+        using IServiceScope scope = app.ApplicationServices.CreateScope();
+        HestiaDbContext database = scope.ServiceProvider.GetRequiredService<HestiaDbContext>();
+        if (database.Database.GetPendingMigrations().Any())
+        {
+            database.Database.Migrate();
+        }
+    }
 }
