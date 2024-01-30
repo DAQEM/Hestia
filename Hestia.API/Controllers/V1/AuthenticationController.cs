@@ -1,7 +1,8 @@
-using System.Security.Claims;
 using AspNet.Security.OAuth.Discord;
+using Hestia.Application.Extensions;
 using Hestia.Infrastructure.Application;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -24,7 +25,7 @@ public class AuthenticationController: HestiaController
     [HttpGet("login/discord")]
     public Task<IActionResult> Login(string? returnUrl = null)
     {
-        returnUrl ??= _applicationSettings.BaseUrl;
+        returnUrl ??= _applicationSettings.AsteriaUrl;
 
         return Task.FromResult<IActionResult>(Challenge(new AuthenticationProperties
         {
@@ -33,56 +34,37 @@ public class AuthenticationController: HestiaController
     }
     
     [Authorize]
-    [HttpGet("logout/discord")]
+    [HttpGet("logout")]
     public Task<IActionResult> Logout(string? returnUrl = null)
     {
-        returnUrl ??= _applicationSettings.BaseUrl;
+        returnUrl ??= _applicationSettings.AsteriaUrl;
 
         return Task.FromResult<IActionResult>(SignOut(new AuthenticationProperties
         {
             RedirectUri = returnUrl
-        }, DiscordAuthenticationDefaults.AuthenticationScheme));
+        }, CookieAuthenticationDefaults.AuthenticationScheme));
     }
     
     [Authorize]
     [HttpGet("me")]
-    public async Task<IActionResult> Me()
+    public IActionResult Me()
     {
-        string? id = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)?.Value;
-        string? username = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Name)?.Value;
-        string? email = User.Claims.FirstOrDefault(claim => claim.Type == ClaimTypes.Email)?.Value;
-        string? image = User.Claims.FirstOrDefault(claim => claim.Type == "image")?.Value;
+        string? id = User.GetId();
+        string? username = User.GetUserName();
+        string? email = User.GetEmail();
+        string? image = User.GetImage();
 
         if (id is null || username is null || image is null || email is null)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Message = "Invalid user"
-            });
+            return Unauthorized();
         }
         
         return Ok(new
         {
-            Success = true,
-            Message = "User found",
-            Data = new
-            {
-                Id = id,
-                Username = username,
-                Email = email,
-                Image = image
-            }
-        });
-    }
-    
-    [HttpGet("test")]
-    public IActionResult Test()
-    {
-        return Ok(new
-        {
-            Success = true,
-            Message = "You are authenticated"
+            Id = id,
+            Username = username,
+            Email = email,
+            Image = image
         });
     }
 }

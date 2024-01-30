@@ -1,8 +1,8 @@
 namespace Hestia.Domain.Models;
 
-public class Role : Model<int>
+public enum Role
 {
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public List<User> Users { get; set; } = null!;
+    Player = 1,
+    Moderator = 10,
+    Administrator = 20
 }

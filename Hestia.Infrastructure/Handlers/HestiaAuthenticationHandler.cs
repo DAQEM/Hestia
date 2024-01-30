@@ -4,9 +4,10 @@ using System.Text.Encodings.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Hestia.API.Handlers;
+namespace Hestia.Infrastructure.Handlers;
 
 public class HestiaAuthenticationHandler : CookieAuthenticationHandler
 {

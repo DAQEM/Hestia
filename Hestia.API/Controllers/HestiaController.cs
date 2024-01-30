@@ -30,12 +30,4 @@ public abstract class HestiaController(ILogger<HestiaController> logger) : Contr
         }
         return BadRequest(result.Message);
     }
-    
-    protected void LogResult<T>(IResult<T> result)
-    {
-        if (result is { Success: false, Message: not null })
-        {
-            Logger.LogWarning("Request failed: {Message}", result.Message);
-        }
-    }
 }

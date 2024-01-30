@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Hestia.Application.Dtos.User;
 using Hestia.Application.Services;
+using Hestia.Domain.Generator;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,25 +11,25 @@ public static class OnCreatingTicketEvent
 {
     public static async Task Execute(OAuthCreatingTicketContext context)
     {
-        ClaimsPrincipal? contextPrincipal = context.Principal;
-        string? accountId = contextPrincipal?.FindFirstValue(ClaimTypes.NameIdentifier);
-        string? name = contextPrincipal?.FindFirstValue(ClaimTypes.Name);
-        string? email = contextPrincipal?.FindFirstValue(ClaimTypes.Email);
-        string? image = contextPrincipal?.FindFirstValue("urn:discord:avatar:hash");
+        ClaimsPrincipal? principal = context.Principal;
+        string? accountId = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
+        string? name = RandomUsernameGenerator.Generate();
+        string? email = principal?.FindFirstValue(ClaimTypes.Email);
+        string? image = principal?.FindFirstValue("urn:discord:avatar:hash");
 
         string? accessToken = context.AccessToken;
         string? refreshToken = context.RefreshToken;
         string? tokenType = context.TokenType;
         TimeSpan? expiresIn = context.ExpiresIn;
 
-        if (contextPrincipal == null || accountId == null || name == null || email == null ||
+        if (principal == null || accountId == null || email == null ||
             image == null || accessToken == null || refreshToken == null || tokenType == null ||
             expiresIn == null)
         {
             context.HttpContext.Response.StatusCode = 401;
             return;
         }
-
+        
         UserDto user = new()
         {
             Name = name,
@@ -59,9 +60,10 @@ public static class OnCreatingTicketEvent
         if (existingUser != null)
         {
             //update user
-            existingUser.Name = user.Name;
             existingUser.Email = user.Email;
             existingUser.Image = user.Image;
+            
+            user.Name = existingUser.Name;
 
             List<AccountDto> existingAccounts = existingUser.Accounts!;
 
@@ -89,9 +91,10 @@ public static class OnCreatingTicketEvent
             await userService.AddAsync(user);
         }
         
-        contextPrincipal.AddIdentity(new ClaimsIdentity(new[]
+        principal.AddIdentity(new ClaimsIdentity(new[]
         {
-            new Claim("image", user.Image)
+            new Claim("image", user.Image),
+            new Claim("username", user.Name),
         }));
     }
 }

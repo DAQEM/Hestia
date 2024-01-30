@@ -1,6 +1,6 @@
 using Hestia.API.Exceptions;
-using Hestia.API.Handlers;
 using Hestia.Infrastructure.Events.Authentication;
+using Hestia.Infrastructure.Handlers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection.Extensions;

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Hestia.Application.Dtos.User;
 
 public class UserDto
@@ -6,7 +8,9 @@ public class UserDto
     public string Name { get; set; } = null!;
     public string Email { get; set; } = null!;
     public string Image { get; set; } = null!;
-    public List<RoleDto>? Roles { get; set; }
+    
+    [JsonConverter(typeof(JsonStringEnumConverter))]
+    public RoleDto Role { get; set; } = RoleDto.Player;
     public List<AccountDto>? Accounts { get; set; }
 
     public static UserDto FromModel(Domain.Models.User? user)
@@ -19,7 +23,7 @@ public class UserDto
             Name = user.Name,
             Email = user.Email,
             Image = user.Image,
-            Roles = user.Roles?.Select(RoleDto.FromModel).ToList() ?? [],
+            Role = (RoleDto) user.Role,
             Accounts = user.Accounts?.Select(AccountDto.FromModel).ToList() ?? []
         };
     }
@@ -32,7 +36,7 @@ public class UserDto
             Name = Name,
             Email = Email,
             Image = Image,
-            Roles = Roles?.Select(x => x.ToModel()).ToList() ?? [],
+            Role = (Domain.Models.Role) Role,
             Accounts = Accounts?.Select(x => x.ToModel()).ToList() ?? []
         };
     }

@@ -18,6 +18,12 @@ public class UserRepository(HestiaDbContext dbContext) : IUserRepository
             .Include(u => u.Accounts)
             .FirstOrDefaultAsync(u => u.Email == email);
     }
+    
+    public async Task<User?> GetUserByUserNameAsync(string name)
+    {
+        return await dbContext.Users
+            .FirstOrDefaultAsync(u => u.Name == name);
+    }
 
     public async Task<List<User>> GetAllAsync()
     {

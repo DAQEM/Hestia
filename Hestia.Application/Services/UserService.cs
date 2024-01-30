@@ -108,8 +108,8 @@ public class UserService(IUserRepository userRepository)
             existingUser.Name = user.Name;
             existingUser.Email = user.Email;
             existingUser.Image = user.Image;
-            existingUser.Roles = user.Roles.Select(x => x.ToModel()).ToList();
-            existingUser.Accounts = user.Accounts.Select(x => x.ToModel()).ToList();
+            existingUser.Role = (Role) user.Role;
+            existingUser.Accounts = user.Accounts?.Select(x => x.ToModel()).ToList() ?? [];
 
             await userRepository.SaveChangesAsync();
             
@@ -167,5 +167,27 @@ public class UserService(IUserRepository userRepository)
                 Message = ex.Message
             };
         }
+    }
+    
+    public async Task<IResult<UserDto?>> GetUserByUserNameAsync(string username)
+    {
+        User? user = await userRepository.GetUserByUserNameAsync(username);
+        
+        if (user is null)
+        {
+            return new ServiceResult<UserDto?>
+            {
+                Data = null,
+                Success = false,
+                Message = "User not found"
+            };
+        }
+        
+        return new ServiceResult<UserDto?>
+        {
+            Data = UserDto.FromModel(user),
+            Success = true,
+            Message = "User found"
+        };
     }
 }

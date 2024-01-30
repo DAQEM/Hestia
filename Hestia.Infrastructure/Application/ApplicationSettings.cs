@@ -2,5 +2,6 @@ namespace Hestia.Infrastructure.Application;
 
 public class ApplicationSettings
 {
-    public string BaseUrl { get; set; } = string.Empty;
+    public string HestiaUrl { get; set; } = null!;
+    public string AsteriaUrl { get; set; } = null!;
 }
