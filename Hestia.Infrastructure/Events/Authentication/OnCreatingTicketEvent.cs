@@ -22,9 +22,8 @@ public static class OnCreatingTicketEvent
         string? tokenType = context.TokenType;
         TimeSpan? expiresIn = context.ExpiresIn;
 
-        if (principal == null || accountId == null || email == null ||
-            image == null || accessToken == null || refreshToken == null || tokenType == null ||
-            expiresIn == null)
+        if (principal is null || accountId is null || email is null || accessToken is null || refreshToken is null 
+            || tokenType is null || expiresIn is null)
         {
             context.HttpContext.Response.StatusCode = 401;
             return;
@@ -34,7 +33,8 @@ public static class OnCreatingTicketEvent
         {
             Name = name,
             Email = email,
-            Image = $"https://cdn.discordapp.com/avatars/{accountId}/{image}",
+            Image = image is null ? null : $"https://cdn.discordapp.com/avatars/{accountId}/{image}",
+            Role = RoleDto.Player,
             Accounts =
             [
                 new AccountDto
@@ -64,6 +64,8 @@ public static class OnCreatingTicketEvent
             existingUser.Image = user.Image;
             
             user.Name = existingUser.Name;
+            user.Role = existingUser.Role;
+            user.Id = existingUser.Id;
 
             List<AccountDto> existingAccounts = existingUser.Accounts!;
 
@@ -88,13 +90,31 @@ public static class OnCreatingTicketEvent
         else
         {
             //create user
-            await userService.AddAsync(user);
+            UserDto? newUser = (await userService.AddAsync(user)).Data;
+            if (newUser is null)
+            {
+                context.HttpContext.Response.StatusCode = 401;
+                return;
+            }
+
+            user = newUser;
         }
-        
-        principal.AddIdentity(new ClaimsIdentity(new[]
+
+        ClaimsIdentity? claimsIdentity = (ClaimsIdentity?) principal.Identity;
+
+        if (claimsIdentity is not null)
         {
-            new Claim("image", user.Image),
-            new Claim("username", user.Name),
-        }));
+            claimsIdentity.RemoveClaim(claimsIdentity.FindFirst(ClaimTypes.NameIdentifier));
+            claimsIdentity.RemoveClaim(claimsIdentity.FindFirst(ClaimTypes.Name));
+            
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
+            claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, user.Role.ToString().ToLower()));
+            
+            if (user.Image is not null)
+            {
+                claimsIdentity.AddClaim(new Claim(ClaimTypes.Uri, user.Image));
+            }
+        }
     }
 }

@@ -67,6 +67,10 @@ public class UserService(IUserRepository userRepository)
     {
         try
         {
+            user.Bio = "Hi, I'm new here!";
+            user.Joined = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            user.LastActive = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            
             User addedUser = await userRepository.AddAsync(user.ToModel());
 
             await userRepository.SaveChangesAsync();
@@ -189,5 +193,82 @@ public class UserService(IUserRepository userRepository)
             Success = true,
             Message = "User found"
         };
+    }
+    
+    public async Task<IResult<bool>> UpdateUserLastActive(int userId, long lastActive)
+    {
+        try
+        {
+            User? existingUser = await userRepository.GetAsync(userId);
+
+            if (existingUser is null)
+            {
+                return new ServiceResult<bool>
+                {
+                    Data = false,
+                    Success = false,
+                    Message = "User not found"
+                };
+            }
+
+            existingUser.LastActive = lastActive;
+
+            await userRepository.SaveChangesAsync();
+            
+            return new ServiceResult<bool>
+            {
+                Data = true,
+                Success = true,
+                Message = "User updated successfully"
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResult<bool>
+            {
+                Data = false,
+                Success = false,
+                Message = ex.Message
+            };
+        }
+    }
+    
+    public async Task<IResult<UserDto?>> UpdateNameAndBioAsync(int userId, string name, string bio)
+    {
+        try
+        {
+            User? existingUser = await userRepository.GetAsync(userId);
+
+            if (existingUser is null)
+            {
+                return new ServiceResult<UserDto?>
+                {
+                    Data = null,
+                    Success = false,
+                    Message = "User not found"
+                };
+            }
+
+            existingUser.Name = name;
+            existingUser.Bio = bio;
+
+            await userRepository.SaveChangesAsync();
+            
+            return new ServiceResult<UserDto?>
+            {
+                Data = UserDto.FromModel(existingUser),
+                Success = true,
+                Message = "User updated successfully"
+            };
+        }
+        catch (Exception ex)
+        {
+            return new ServiceResult<UserDto?>
+            {
+                Data = null,
+                Success = false,
+                Message = ex.Message
+            };
+        }
     }
 }

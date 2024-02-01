@@ -1,4 +1,5 @@
 using Hestia.API.Extensions;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -26,5 +27,6 @@ app.UseHestiaCors();
 app.UseHttpsRedirection();
 app.UseHestiaAuthentication();
 app.UseHestiaDatabase();
+app.UseHestiaMiddleware();
 
 app.Run();

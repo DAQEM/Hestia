@@ -1,8 +1,9 @@
 using System.Security.Claims;
 using Hestia.Application.Dtos.User;
-using Hestia.Application.Extensions;
 using Hestia.Application.Result;
 using Hestia.Application.Services;
+using Hestia.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hestia.API.Controllers.V1;
@@ -16,18 +17,27 @@ public class UserController(ILogger<HestiaController> logger, UserService userSe
     public async Task<IActionResult> GetUserByName(string name)
     {
         IResult<UserDto?> result = await userService.GetUserByUserNameAsync(name);
-        
-        if (result.Data is  not null)
+        UserDto? user = result.Data;
+
+        if (user != null && HttpContext.User.GetEmail() != user.Email)
         {
-            UserDto user = result.Data;
-            Claim? emailClaim = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
-            if (emailClaim is null || !emailClaim.Value.EqualsIgnoreCase(user.Email))
-            {
-                user.Email = null!;
-            }
+            user.Email = null!;
         }
-        
+
         return HandleResult(result);
+    }
+
+    [Authorize]
+    [HttpPut]
+    public async Task<IActionResult> UpdateUser(UserUpdateRequestDto requestDto)
+    {
+        if (int.TryParse(User.GetId(), out int userId))
+        {
+            IResult<UserDto?> result = await userService.UpdateNameAndBioAsync(userId, requestDto.Name, requestDto.Bio);
+            
+            return HandleResult(result);
+        }
+        return Unauthorized();
     }
     
 }

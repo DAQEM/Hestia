@@ -20,6 +20,10 @@ public static class AuthExtension
             })
             .AddHestiaCookieAndBearerAuthentication(CookieAuthenticationDefaults.AuthenticationScheme, null, options =>
             {
+                options.Cookie.Name = "hestia-auth-token";
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.HttpOnly = false;
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = 401;

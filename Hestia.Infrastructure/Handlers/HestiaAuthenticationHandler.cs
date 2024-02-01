@@ -1,9 +1,13 @@
 using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using Hestia.Domain.Extensions;
+using Hestia.Domain.Models;
+using Hestia.Infrastructure.Database;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -75,6 +79,13 @@ public class HestiaAuthenticationHandler : CookieAuthenticationHandler
         if (ticket == null)
         {
             return AuthenticateResults.FailedUnprotectingTicket;
+        }
+        
+        bool result = await CompareClaimsAgainstDatabase(ticket);
+        if (!result)
+        {
+            await Context.SignOutAsync();
+            return AuthenticateResult.Fail("Unauthorized");
         }
 
         if (Options.SessionStore != null)
@@ -150,5 +161,34 @@ public class HestiaAuthenticationHandler : CookieAuthenticationHandler
         internal static AuthenticateResult MissingIdentityInSession = AuthenticateResult.Fail("Identity missing in session store");
         internal static AuthenticateResult ExpiredTicket = AuthenticateResult.Fail("Ticket expired");
         internal static AuthenticateResult NoPrincipal = AuthenticateResult.Fail("No principal.");
+    }
+
+    private async Task<bool> CompareClaimsAgainstDatabase(AuthenticationTicket ticket)
+    {
+        HestiaDbContext dbContext = Context.RequestServices.GetRequiredService<HestiaDbContext>();
+        string? id = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.NameIdentifier))?.Value;
+        string? name = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Name))?.Value;
+        string? email = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;
+        string? role = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Role))?.Value;
+        
+        if (id is null || name is null || email is null || role is null)
+        {
+            return false;
+        }
+        
+        User? user = await dbContext.Users.FindAsync(int.Parse(id));
+        
+        if (user is null)
+        {
+            return false;
+        }
+        
+        if (!user.Name.EqualsIgnoreCase(name) || !user.Email.EqualsIgnoreCase(email) || !user.Role.ToString().EqualsIgnoreCase(role))
+        {
+            var x = Context.Request.Path.Value?.ContainsIgnoreCase("authentication/refresh");
+            return x ?? false;
+        }
+        
+        return true;
     }
 }
