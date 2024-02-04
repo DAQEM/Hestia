@@ -7,7 +7,7 @@ public static class RepositoriesExtension
 {
     public static void AddHestiaRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IProductRepository, ProductRepository>();
+        services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
     }
 }

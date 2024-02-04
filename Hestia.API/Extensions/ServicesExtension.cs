@@ -6,7 +6,7 @@ public static class ServicesExtension
 {
     public static void AddHestiaServices(this IServiceCollection services)
     {
-        services.AddScoped<ProductService>();
+        services.AddScoped<ProjectService>();
         services.AddScoped<UserService>();
     }
     

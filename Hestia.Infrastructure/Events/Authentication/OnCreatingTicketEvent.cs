@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Hestia.Application.Dtos.User;
 using Hestia.Application.Services;
-using Hestia.Domain.Generator;
+using Hestia.Infrastructure.Generator;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Extensions.DependencyInjection;
 

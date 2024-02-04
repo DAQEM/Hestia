@@ -13,4 +13,6 @@ public class User : Model<int>
     public long LastActive { get; set; }
     
     public List<Account> Accounts { get; set; } = null!;
+    public List<Post> Posts { get; set; } = null!;
+    public List<PostComment> Comments { get; set; } = null!;
 }

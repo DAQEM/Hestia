@@ -2,7 +2,7 @@
 
 namespace Hestia.Domain.Repositories;
 
-public interface IProductRepository : IRepository<Product, int>
+public interface IProjectRepository : IRepository<Project, int>
 {
     
 }

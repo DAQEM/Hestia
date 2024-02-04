@@ -1,4 +1,4 @@
-namespace Hestia.Domain.Generator;
+namespace Hestia.Infrastructure.Generator;
 
 public class RandomUsernameGenerator
 {
