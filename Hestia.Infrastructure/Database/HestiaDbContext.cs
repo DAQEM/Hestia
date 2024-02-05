@@ -13,6 +13,7 @@ public class HestiaDbContext : DbContext
     public DbSet<User> Users { get; set; } = null!;
 
     public DbSet<Project> Projects { get; set; } = null!;
+    public DbSet<ProjectCategory> ProjectCategories { get; set; } = null!;
     
     public DbSet<Post> Posts { get; set; } = null!;
     public DbSet<PostCategory> PostCategories { get; set; } = null!;
@@ -25,6 +26,8 @@ public class HestiaDbContext : DbContext
 
         builder.ApplyConfigurationsFromAssembly(typeof(HestiaDbContext).Assembly);
 
+        #region User Configuration
+        
         builder.Entity<Account>()
             .HasOne(a => a.User)
             .WithMany(u => u.Accounts)
@@ -42,6 +45,9 @@ public class HestiaDbContext : DbContext
         builder.Entity<User>()
             .HasIndex(u => u.Email)
             .IsUnique();
+        
+        #endregion
+        #region Project Configuration
 
         builder.Entity<Project>()
             .HasIndex(p => p.Name)
@@ -66,7 +72,28 @@ public class HestiaDbContext : DbContext
         builder.Entity<Project>()
             .HasIndex(p => p.ModrinthUrl)
             .IsUnique();
-
+        
+        builder.Entity<Project>()
+            .ToTable(t => t.HasCheckConstraint("CK_Project_CurseForgeId_ModrinthId", "((\"CurseForgeId\" IS NOT NULL) OR (\"ModrinthId\" IS NOT NULL))"));
+        
+        builder.Entity<Project>()
+            .HasMany(p => p.Categories)
+            .WithMany(c => c.Projects)
+            .UsingEntity(j => j.ToTable("ProjectCategory"));
+        
+        builder.Entity<ProjectCategory>()
+            .HasIndex(c => c.Slug)
+            .IsUnique();
+        
+        builder.Entity<ProjectCategory>()
+            .HasOne(c => c.Parent)
+            .WithMany(c => c.Children)
+            .HasForeignKey(c => c.ParentId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        #endregion
+        #region Blog Configuration
+        
         builder.Entity<User>()
             .HasMany(u => u.Posts)
             .WithOne(p => p.User)
@@ -120,5 +147,7 @@ public class HestiaDbContext : DbContext
         builder.Entity<PostCategory>()
             .HasIndex(c => c.Slug)
             .IsUnique();
+        
+        #endregion
     }
 }

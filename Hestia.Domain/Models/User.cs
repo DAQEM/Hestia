@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace Hestia.Domain.Models;
 
 public class User : Model<int>

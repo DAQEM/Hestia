@@ -1,6 +1,7 @@
 ﻿using Hestia.Application.Dtos.Project;
 using Hestia.Application.Result;
 using Hestia.Application.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hestia.API.Controllers.V1;
@@ -25,6 +26,7 @@ public class ProjectController(ProjectService projectService, ILogger<ProjectCon
         return HandleResult(result);
     }
     
+    [Authorize(Roles = "administrator")]
     [HttpPost]
     public async Task<IActionResult> AddProject(ProjectDto project)
     {
@@ -32,6 +34,7 @@ public class ProjectController(ProjectService projectService, ILogger<ProjectCon
         return HandleResult(result);
     }
     
+    [Authorize(Roles = "administrator")]
     [HttpPut("{id:int}")]
     public async Task<IActionResult> UpdateProject(int id, ProjectDto project)
     {
@@ -39,6 +42,7 @@ public class ProjectController(ProjectService projectService, ILogger<ProjectCon
         return HandleResult(result);
     }
     
+    [Authorize(Roles = "administrator")]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteProject(int id)
     {
