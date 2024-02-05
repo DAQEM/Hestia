@@ -14,6 +14,7 @@ public class HestiaDbContext : DbContext
 
     public DbSet<Project> Projects { get; set; } = null!;
     public DbSet<ProjectCategory> ProjectCategories { get; set; } = null!;
+    public DbSet<ProjectVersion> ProjectVersions { get; set; } = null!;
     
     public DbSet<Post> Posts { get; set; } = null!;
     public DbSet<PostCategory> PostCategories { get; set; } = null!;
@@ -90,6 +91,11 @@ public class HestiaDbContext : DbContext
             .WithMany(c => c.Children)
             .HasForeignKey(c => c.ParentId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<Project>()
+            .HasMany(p => p.Versions)
+            .WithMany(v => v.Projects)
+            .UsingEntity(j => j.ToTable("ProjectVersion"));
         
         #endregion
         #region Blog Configuration

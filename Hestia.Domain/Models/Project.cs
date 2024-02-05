@@ -17,8 +17,10 @@ public class Project : Model<int>
     public bool IsPublished { get; set; }
     public DateTime CreatedAt { get; set; }
     public ProjectType Type { get; set; }
+    public ProjectLoaders Loaders { get; set; }
     
     public List<Post> Posts { get; set; } = [];
     public List<ProjectCategory> Categories { get; set; } = [];
     public List<User> Users { get; set; } = [];
+    public List<ProjectVersion> Versions { get; set; } = [];
 }
