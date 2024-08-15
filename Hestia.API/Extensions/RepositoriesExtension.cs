@@ -9,5 +9,6 @@ public static class RepositoriesExtension
     {
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IProjectCategoryRepository, ProjectCategoryRepository>();
     }
 }

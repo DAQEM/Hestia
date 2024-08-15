@@ -86,16 +86,15 @@ public class HestiaDbContext : DbContext
             .HasIndex(c => c.Slug)
             .IsUnique();
         
-        builder.Entity<ProjectCategory>()
-            .HasOne(c => c.Parent)
-            .WithMany(c => c.Children)
-            .HasForeignKey(c => c.ParentId)
-            .OnDelete(DeleteBehavior.Cascade);
-        
         builder.Entity<Project>()
             .HasMany(p => p.Versions)
             .WithMany(v => v.Projects)
             .UsingEntity(j => j.ToTable("ProjectVersion"));
+        
+        // builder.Entity<Project>()
+        //     .HasMany(p => p.Users)
+        //     .WithMany(u => u.Projects)
+        //     .UsingEntity(j => j.ToTable("UserProject"));
         
         #endregion
         #region Blog Configuration

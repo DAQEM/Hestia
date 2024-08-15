@@ -3,6 +3,7 @@ using System;
 using Hestia.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hestia.API.Migrations
 {
     [DbContext(typeof(HestiaDbContext))]
-    partial class HestiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240206093240_AddedProjectSlug")]
+    partial class AddedProjectSlug
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -321,11 +324,16 @@ namespace Hestia.API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
 
                     b.HasIndex("Slug")
                         .IsUnique();
@@ -379,6 +387,9 @@ namespace Hestia.API.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
@@ -389,6 +400,8 @@ namespace Hestia.API.Migrations
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("ProjectId");
 
                     b.ToTable("Users");
                 });
@@ -451,21 +464,6 @@ namespace Hestia.API.Migrations
                     b.HasIndex("VersionsId");
 
                     b.ToTable("ProjectVersion", (string)null);
-                });
-
-            modelBuilder.Entity("ProjectUser", b =>
-                {
-                    b.Property<int>("ProjectsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsersId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProjectsId", "UsersId");
-
-                    b.HasIndex("UsersId");
-
-                    b.ToTable("ProjectUser");
                 });
 
             modelBuilder.Entity("Hestia.Domain.Models.Account", b =>
@@ -538,6 +536,23 @@ namespace Hestia.API.Migrations
                     b.Navigation("Post");
                 });
 
+            modelBuilder.Entity("Hestia.Domain.Models.ProjectCategory", b =>
+                {
+                    b.HasOne("Hestia.Domain.Models.ProjectCategory", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("Hestia.Domain.Models.User", b =>
+                {
+                    b.HasOne("Hestia.Domain.Models.Project", null)
+                        .WithMany("Users")
+                        .HasForeignKey("ProjectId");
+                });
+
             modelBuilder.Entity("PostPostCategory", b =>
                 {
                     b.HasOne("Hestia.Domain.Models.PostCategory", null)
@@ -598,21 +613,6 @@ namespace Hestia.API.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProjectUser", b =>
-                {
-                    b.HasOne("Hestia.Domain.Models.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Hestia.Domain.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Hestia.Domain.Models.Post", b =>
                 {
                     b.Navigation("Comments");
@@ -626,6 +626,16 @@ namespace Hestia.API.Migrations
                 });
 
             modelBuilder.Entity("Hestia.Domain.Models.PostComment", b =>
+                {
+                    b.Navigation("Children");
+                });
+
+            modelBuilder.Entity("Hestia.Domain.Models.Project", b =>
+                {
+                    b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Hestia.Domain.Models.ProjectCategory", b =>
                 {
                     b.Navigation("Children");
                 });

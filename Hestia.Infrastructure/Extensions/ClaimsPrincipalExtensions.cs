@@ -1,9 +1,5 @@
 using System.Security.Claims;
 using Hestia.Domain.Extensions;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Hestia.Infrastructure.Extensions;
 

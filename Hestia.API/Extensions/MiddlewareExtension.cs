@@ -4,8 +4,9 @@ namespace Hestia.API.Extensions;
 
 public static class MiddlewareExtension
 {
-    public static IApplicationBuilder UseHestiaMiddleware(this IApplicationBuilder builder)
+    public static void UseHestiaMiddleware(this IApplicationBuilder builder)
     {
-        return builder.UseMiddleware<HestiaMiddleware>();
+        builder.UseMiddleware<HestiaMiddleware>();
+        builder.UseMiddleware<DatabaseExceptionMiddleware>();
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace Hestia.Application.Result;
+﻿using Hestia.Domain.Result;
+
+namespace Hestia.Application.Result;
 
 public class ServiceResult<T> : IResult<T>
 {

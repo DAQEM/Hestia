@@ -13,4 +13,5 @@ public class User : Model<int>
     public List<Account> Accounts { get; set; } = null!;
     public List<Post> Posts { get; set; } = null!;
     public List<PostComment> Comments { get; set; } = null!;
+    public List<Project> Projects { get; set; } = null!;
 }

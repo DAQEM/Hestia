@@ -3,6 +3,7 @@ using System;
 using Hestia.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hestia.API.Migrations
 {
     [DbContext(typeof(HestiaDbContext))]
-    partial class HestiaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240206222533_AddedProjectUserTable")]
+    partial class AddedProjectUserTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -1,15 +1,32 @@
-﻿using Hestia.Application.Result;
+﻿using Hestia.Domain.Result;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hestia.API.Controllers;
 
 public abstract class HestiaController(ILogger<HestiaController> logger) : ControllerBase
 {
-    protected readonly ILogger<HestiaController> Logger = logger;
+    private readonly ILogger<HestiaController> Logger = logger;
     
     protected IActionResult HandleResult<T>(IResult<T> result)
     {
+        if (result is PagedResult<T> pagedResult)
+        {
+            return HandlePagedResult(pagedResult);
+        }
+        
         return result.Success ? Ok(result.Data) : HandleFailedResult(result);
+    }
+
+    private IActionResult HandlePagedResult<T>(PagedResult<T> result)
+    {
+        return result.Success ? Ok(new
+        {
+            result.Data,
+            result.Page,
+            result.PageSize,
+            result.TotalCount,
+            result.TotalPages
+        }) : HandleFailedResult(result);
     }
     
     protected IActionResult HandleFailedResult<T>(IResult<T> result)

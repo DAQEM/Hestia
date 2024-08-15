@@ -1,6 +1,6 @@
 ﻿using Hestia.Application.Dtos.Project;
-using Hestia.Application.Result;
 using Hestia.Application.Services;
+using Hestia.Domain.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,9 +13,10 @@ public class ProjectController(ProjectService projectService, ILogger<ProjectCon
     : HestiaController(logger)
 {
     [HttpGet]
-    public async Task<IActionResult> GetAllProjects()
+    public async Task<IActionResult> SearchProjects([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] bool? isFeatured = null, [FromQuery] string[]? categories = null, [FromQuery] string[]? loaders = null, [FromQuery] string[]? types = null, [FromQuery] ProjectOrderDto order = ProjectOrderDto.Relevance)
     {
-        IResult<IEnumerable<ProjectDto>> result = await projectService.GetAllAsync();
+        
+        IResult<List<ProjectDto>> result = await projectService.SearchAsync(query, page, pageSize, isFeatured, categories, loaders, types, order);
         return HandleResult(result);
     }
     

@@ -1,12 +1,97 @@
 ﻿using Hestia.Domain.Models;
 using Hestia.Domain.Repositories;
+using Hestia.Domain.Result;
+using Hestia.Infrastructure.Algorithms;
 using Hestia.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Hestia.Infrastructure.Repositories;
 
 public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
 {
+    public async Task<PagedResult<List<Project>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrder? order)
+    {
+        IQueryable<Project> projectsQuery = dbContext.Projects
+            .Include(p => p.Categories)
+            .Include(p => p.Users)
+            .AsQueryable();
+        
+        if (isFeatured is not null)
+        {
+            projectsQuery = projectsQuery.Where(p => p.IsFeatured == isFeatured);
+        }
+        
+        if (categories is not null)
+        {
+            projectsQuery = projectsQuery.Where(p => p.Categories.Any(c => categories.Contains(c.Name)));
+        }
+        
+        if (loaders is not null)
+        {
+            projectsQuery = projectsQuery.Where(p => p.Loaders.HasFlag(Enum.Parse<ProjectLoaders>(string.Join(",", loaders), true)));
+        }
+        
+        if (query is not null)
+        {
+            projectsQuery = projectsQuery
+                .Where(p => EF.Functions.Like(p.Name, $"%{query}%") 
+                            || EF.Functions.Like(p.Summary, $"%{query}%") 
+                            || EF.Functions.Like(p.Description, $"%{query}%"));
+        }
+        
+        if (types is not null)
+        {
+            projectsQuery = projectsQuery.Where(p => p.Type.HasFlag(Enum.Parse<ProjectType>(string.Join(",", types), true)));
+            
+        }
+        projectsQuery = order switch
+        {
+            ProjectOrder.Name => projectsQuery.OrderBy(p => p.Name),
+            ProjectOrder.Downloads => projectsQuery.OrderByDescending(p => p.Downloads),
+            ProjectOrder.CreatedAt => projectsQuery.OrderByDescending(p => p.CreatedAt),
+            _ => projectsQuery
+        };
+
+
+        List<Project> projects;
+
+        if (order == ProjectOrder.Relevance)
+        {
+            List<Project> projectsList = await projectsQuery.ToListAsync().ConfigureAwait(false);
+
+            projects = projectsList
+                .OrderByDescending(p =>
+                    string.IsNullOrEmpty(query)
+                        ? ProjectRelevanceCalculator.CalculateRelevanceScoreWithoutSearchTerm(p)
+                        : ProjectRelevanceCalculator.CalculateRelevanceScore(p, query))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+        else
+        {
+            projects = await projectsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync()
+                .ConfigureAwait(false);
+        }
+
+        int totalCount = await projectsQuery.CountAsync().ConfigureAwait(false);
+
+        return new PagedResult<List<Project>>
+        {
+            Data = projects,
+            Success = true,
+            Message = "Projects found",
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
+        };
+    }
+
     public async Task<Project?> GetAsync(int id)
     {
         return await dbContext.Projects.FindAsync(id).ConfigureAwait(false);
@@ -30,16 +115,14 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
         return Task.FromResult(entity);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public Task<bool> DeleteAsync(int id)
     {
-        Project? project = await dbContext.Projects.FindAsync(id).ConfigureAwait(false);
-        if (project is null) return false;
-        dbContext.Projects.Remove(project);
-        return true;
+        EntityEntry<Project> entity = dbContext.Projects.Remove(new Project { Id = id });
+        return Task.FromResult(entity.State == EntityState.Deleted);
     }
 
-    public Task SaveChangesAsync()
+    public async Task SaveChangesAsync()
     {
-        return dbContext.SaveChangesAsync();
+        await dbContext.SaveChangesAsync().ConfigureAwait(false);
     }
 }

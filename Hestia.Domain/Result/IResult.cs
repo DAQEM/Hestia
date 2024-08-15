@@ -1,4 +1,4 @@
-﻿namespace Hestia.Application.Result;
+﻿namespace Hestia.Domain.Result;
 
 public interface IResult<out T>
 {

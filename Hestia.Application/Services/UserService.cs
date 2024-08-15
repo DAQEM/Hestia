@@ -2,6 +2,7 @@ using Hestia.Application.Dtos.User;
 using Hestia.Application.Result;
 using Hestia.Domain.Models;
 using Hestia.Domain.Repositories;
+using Hestia.Domain.Result;
 
 namespace Hestia.Application.Services;
 

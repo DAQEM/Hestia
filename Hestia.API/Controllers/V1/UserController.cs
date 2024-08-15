@@ -1,7 +1,6 @@
-using System.Security.Claims;
 using Hestia.Application.Dtos.User;
-using Hestia.Application.Result;
 using Hestia.Application.Services;
+using Hestia.Domain.Result;
 using Hestia.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

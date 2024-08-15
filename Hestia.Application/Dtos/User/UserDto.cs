@@ -26,7 +26,6 @@ public class UserDto
             Id = user.Id,
             Name = user.Name,
             Bio = user.Bio,
-            Email = user.Email,
             Image = user.Image,
             Role = (RoleDto) user.Role,
             Joined = user.Joined,
