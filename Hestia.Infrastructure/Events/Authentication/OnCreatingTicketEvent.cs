@@ -57,7 +57,7 @@ public static class OnCreatingTicketEvent
         //check if user exists
         UserDto? existingUser = (await userService.GetUserWithAccountByEmailAsync(email)).Data;
 
-        if (existingUser != null)
+        if (existingUser is not  null)
         {
             //update user
             existingUser.Email = user.Email;

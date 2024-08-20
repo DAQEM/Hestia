@@ -23,7 +23,8 @@ public static class AuthExtension
                 options.Cookie.Name = "hestia-auth-token";
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.HttpOnly = false;
+                options.Cookie.Domain = oAuthSection.GetValue<string>("CookieDomain");
+                options.Cookie.HttpOnly = true;
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = 401;
@@ -42,14 +43,15 @@ public static class AuthExtension
 
                 if (clientId == null)
                 {
-                    throw new MissingEnvironmentVariableException("DISCORD_CLIENT_ID");
+                    throw new MissingEnvironmentVariableException("Discord:ClientId");
                 }
 
                 if (clientSecret == null)
                 {
-                    throw new MissingEnvironmentVariableException("DISCORD_CLIENT_SECRET");
+                    throw new MissingEnvironmentVariableException("Discord:ClientSecret");
                 }
 
+                options.CallbackPath = "/api/v1/authentication/login/discord/callback";
                 options.ClientId = clientId;
                 options.ClientSecret = clientSecret;
                 options.Scope.Add("email");
@@ -59,6 +61,11 @@ public static class AuthExtension
 
     public static void UseHestiaAuthentication(this IApplicationBuilder app)
     {
+        app.UseCookiePolicy(new CookiePolicyOptions
+        {
+            Secure = CookieSecurePolicy.Always
+        });
+        
         app.UseAuthentication();
         app.UseAuthorization();
     }

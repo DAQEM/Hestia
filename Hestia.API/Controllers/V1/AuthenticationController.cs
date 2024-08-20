@@ -33,7 +33,7 @@ public class AuthenticationController: HestiaController
 
         return Task.FromResult<IActionResult>(Challenge(new AuthenticationProperties
         {
-            RedirectUri = returnUrl
+            RedirectUri = returnUrl,
         }, DiscordAuthenticationDefaults.AuthenticationScheme));
     }
     
