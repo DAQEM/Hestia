@@ -9,6 +9,7 @@ public static class ServicesExtension
         services.AddScoped<ProjectService>();
         services.AddScoped<UserService>();
         services.AddScoped<ProjectCategoryService>();
+        services.AddScoped<ProjectSyncService>();
     }
     
 }

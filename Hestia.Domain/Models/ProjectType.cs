@@ -2,7 +2,11 @@ namespace Hestia.Domain.Models;
 
 public enum ProjectType
 {
-    Modpack = 0,
-    Mod = 1,
-    Plugin = 2,
+    Unknown = 0,
+    Modpack = 1,
+    Mod = 2,
+    Plugin = 3,
+    ResourcePack = 4,
+    DataPack = 5,
+    Shader = 6,
 }

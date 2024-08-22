@@ -1,4 +1,5 @@
 ﻿using Hestia.Application.Dtos.User;
+using Hestia.Domain.Models;
 
 namespace Hestia.Application.Dtos.Project;
 
@@ -61,7 +62,34 @@ public class ProjectDto
             CurseForgeId = CurseForgeId,
             CurseForgeUrl = CurseForgeUrl,
             ModrinthId = ModrinthId,
-            ModrinthUrl = ModrinthUrl
+            ModrinthUrl = ModrinthUrl,
+            Type = TryParseProjectType(Type),
+            Loaders = TryParseLoaders(Loaders),
         };
+    }
+    
+    private static ProjectType TryParseProjectType(string type)
+    {
+        return Enum.TryParse(type, true, out ProjectType projectType) ? projectType : ProjectType.Unknown;
+    }
+    
+    private static ProjectLoaders TryParseLoaders(IEnumerable<string> loaders)
+    {
+        ProjectLoaders flags = ProjectLoaders.None;
+
+        foreach (string inputString in loaders)
+        {
+            try
+            {
+                ProjectLoaders parsedFlag = (ProjectLoaders)Enum.Parse(typeof(ProjectLoaders), inputString, true);
+                flags |= parsedFlag;
+            }
+            catch (ArgumentException ex)
+            {
+                //ignore
+            }
+        }
+
+        return flags;
     }
 }
