@@ -1,4 +1,6 @@
-﻿namespace Hestia.Domain.Models;
+﻿using System.ComponentModel;
+
+namespace Hestia.Domain.Models;
 
 public class Project : Model<int>
 {
@@ -8,15 +10,21 @@ public class Project : Model<int>
     public string Slug { get; set; } = null!;
     public string ImageUrl { get; set; } = null!;
     public string? BannerUrl { get; set; }
-    public long Downloads { get; set; }
     public string? GitHubUrl { get; set; }
     public string? CurseForgeId { get; set; }
     public string? CurseForgeUrl { get; set; }
+    [DefaultValue(0L)]
+    public long CurseForgeDownloads { get; set; }
     public string? ModrinthId { get; set; }
     public string? ModrinthUrl { get; set; }
+    [DefaultValue(0L)]
+    public long ModrinthDownloads { get; set; }
     public bool IsFeatured { get; set; }
     public bool IsPublished { get; set; }
+    [DefaultValue(true)]
+    public bool ShouldSync { get; set; }
     public DateTime CreatedAt { get; set; }
+    public DateTime SyncedAt { get; set; }
     public ProjectType Type { get; set; }
     public ProjectLoaders Loaders { get; set; }
     

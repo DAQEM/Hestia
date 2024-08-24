@@ -1,5 +1,8 @@
-﻿using Hestia.Domain.Models;
+﻿using System.ComponentModel;
+using System.Reflection;
+using Hestia.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Hestia.Infrastructure.Database;
 
@@ -24,6 +27,18 @@ public class HestiaDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        
+        foreach (IMutableEntityType entityType in builder.Model.GetEntityTypes())
+        {
+            foreach (IMutableProperty property in entityType.GetProperties())
+            {
+                MemberInfo? memberInfo = property.PropertyInfo ?? (MemberInfo?) property.FieldInfo;
+                if (memberInfo == null) continue;
+                DefaultValueAttribute? defaultValue = Attribute.GetCustomAttribute(memberInfo, typeof(DefaultValueAttribute)) as DefaultValueAttribute;
+                if (defaultValue == null) continue;                   
+                property.SetDefaultValue(defaultValue.Value);
+            }
+        }
 
         builder.ApplyConfigurationsFromAssembly(typeof(HestiaDbContext).Assembly);
 

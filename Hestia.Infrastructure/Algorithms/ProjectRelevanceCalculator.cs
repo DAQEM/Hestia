@@ -10,7 +10,7 @@ public class ProjectRelevanceCalculator
             double nameSimilarityScore = CalculateSimilarityScore(project.Name, searchTerm);
             double summarySimilarityScore = CalculateSimilarityScore(project.Summary, searchTerm);
             double descriptionSimilarityScore = CalculateSimilarityScore(project.Description, searchTerm);
-            double popularityScore = CalculatePopularityScore(project.Downloads);
+            double popularityScore = CalculatePopularityScore(project.ModrinthDownloads + project.CurseForgeDownloads);
             double featureScore = project.IsFeatured ? 1 : 0;
             double publishedScore = project.IsPublished ? 1 : 0;
 
@@ -30,7 +30,7 @@ public class ProjectRelevanceCalculator
         public static double CalculateRelevanceScoreWithoutSearchTerm(Project project)
         {
             // Simplified relevance calculation based on various factors
-            double popularityScore = CalculatePopularityScore(project.Downloads);
+            double popularityScore = CalculatePopularityScore(project.ModrinthDownloads + project.CurseForgeDownloads);
             double featureScore = project.IsFeatured ? 1 : 0;
             double publishedScore = project.IsPublished ? 1 : 0;
 

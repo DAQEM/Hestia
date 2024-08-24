@@ -12,12 +12,18 @@ public class ProjectDto
     public string Slug { get; set; } = null!;
     public string ImageUrl { get; set; } = null!;
     public string? BannerUrl { get; set; }
-    public long Downloads { get; set; }
     public string? GitHubUrl { get; set; }
     public string? CurseForgeId { get; set; }
     public string? CurseForgeUrl { get; set; }
+    public long CurseForgeDownloads { get; set; }
     public string? ModrinthId { get; set; }
     public string? ModrinthUrl { get; set; }
+    public long ModrinthDownloads { get; set; }
+    public bool IsFeatured { get; set; }
+    public bool IsPublished { get; set; }
+    public bool ShouldSync { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime SyncedAt { get; set; }
     public string Type { get; set; } = null!;
     public string[] Categories { get; set; } = [];
     public string[] Loaders { get; set; } = [];
@@ -33,12 +39,18 @@ public class ProjectDto
             Slug = project.Slug,
             ImageUrl = project.ImageUrl,
             BannerUrl = project.BannerUrl,
-            Downloads = project.Downloads,
             GitHubUrl = project.GitHubUrl,
             CurseForgeId = project.CurseForgeId,
             CurseForgeUrl = project.CurseForgeUrl,
+            CurseForgeDownloads = project.CurseForgeDownloads,
             ModrinthId = project.ModrinthId,
             ModrinthUrl = project.ModrinthUrl,
+            ModrinthDownloads = project.ModrinthDownloads,
+            IsFeatured = project.IsFeatured,
+            IsPublished = project.IsPublished,
+            ShouldSync = project.ShouldSync,
+            CreatedAt = project.CreatedAt,
+            SyncedAt = project.SyncedAt,
             Type = project.Type.ToString().ToLower(),
             Categories = project.Categories.Select(c => c.Name).ToArray(),
             Loaders = project.Loaders == 0 ? [] : project.Loaders.ToString().Split(", "),
@@ -57,12 +69,18 @@ public class ProjectDto
             Slug = Slug,
             ImageUrl = ImageUrl,
             BannerUrl = BannerUrl,
-            Downloads = Downloads,
             GitHubUrl = GitHubUrl,
             CurseForgeId = CurseForgeId,
             CurseForgeUrl = CurseForgeUrl,
+            CurseForgeDownloads = CurseForgeDownloads,
             ModrinthId = ModrinthId,
             ModrinthUrl = ModrinthUrl,
+            ModrinthDownloads = ModrinthDownloads,
+            IsFeatured = IsFeatured,
+            IsPublished = IsPublished,
+            ShouldSync = ShouldSync,
+            CreatedAt = CreatedAt,
+            SyncedAt = SyncedAt,
             Type = TryParseProjectType(Type),
             Loaders = TryParseLoaders(Loaders),
         };

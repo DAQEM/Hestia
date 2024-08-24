@@ -21,8 +21,4 @@
       <ProjectReference Include="..\Hestia.Infrastructure\Hestia.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="Migrations\HestiaDbContextModelSnapshot.cs" />
-    </ItemGroup>
-
 </Project>

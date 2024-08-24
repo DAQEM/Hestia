@@ -18,4 +18,12 @@ public class ProjectSyncController(ProjectSyncService projectSyncService, IOptio
         bool success = await projectSyncService.SyncModrinthProject(projectId, modrinthApiKey);
         return success ? Ok() : BadRequest();
     }
+
+    [HttpPost("curseforge")]
+    public async Task<IActionResult> SyncCurseForgeProject(string projectId)
+    {
+        string curseForgeApiKey = apiKeySettings.Value.CurseForge;
+        bool success = await projectSyncService.SyncCurseForgeProject(projectId, curseForgeApiKey);
+        return success ? Ok() : BadRequest();
+    }
 }

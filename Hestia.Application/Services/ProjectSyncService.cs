@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Hestia.Application.Dtos.Project;
-using Hestia.Application.Dtos.Project.Modrinth;
+using Hestia.Application.Dtos.Project.External;
 using Hestia.Domain.Models;
 
 namespace Hestia.Application.Services;
@@ -39,15 +39,79 @@ public class ProjectSyncService(ProjectService projectService, HttpClient httpCl
             Slug = modrinthProject.Slug,
             ImageUrl = modrinthProject.IconUrl,
             BannerUrl = modrinthProject.IconUrl,
-            Downloads = modrinthProject.Downloads,
             GitHubUrl = modrinthProject.SourceUrl,
             ModrinthId = modrinthProject.Id,
             ModrinthUrl = "https://modrinth.com/" + modrinthProject.ProjectType + "/" + modrinthProject.Slug,
+            ModrinthDownloads = modrinthProject.Downloads,
             Loaders = modrinthProject.Loaders,
+            SyncedAt = DateTime.Now,
             Type = modrinthProject.ProjectType
         };
 
-        await projectService.AddAsync(project);
+        ProjectDto? savedProject = (await projectService.GetByModrinthIdAsync(modrinthProject.Id)).Data;
+        
+        if (savedProject != null)
+        {
+            project.Id = savedProject.Id;
+            project.CreatedAt = savedProject.CreatedAt;
+            project.IsFeatured = savedProject.IsFeatured;
+            project.IsPublished = savedProject.IsPublished;
+            project.ShouldSync = savedProject.ShouldSync;
+            
+            await projectService.UpdateAsync(project.Id, project);
+        }
+        else
+        {
+            project.CreatedAt = DateTime.Now;
+            project.IsFeatured = false;
+            project.IsPublished = false;
+            project.ShouldSync = true;
+            
+            await projectService.AddAsync(project);
+        }
+        
+        return true;
+    }
+
+    public async Task<bool> SyncCurseForgeProject(string projectId, string curseForgeApiKey)
+    {
+        string requestUrl = $"https://api.curseforge.com/v1/mods/{projectId}";
+        HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUrl);
+        requestMessage.Headers.Add("x-api-key", curseForgeApiKey);
+
+        HttpResponseMessage response = await httpClient.SendAsync(requestMessage);
+        string stringResponse = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode) return false;
+
+        CurseForgeProjectDto? curseForgeProject;
+        
+        try
+        {
+            curseForgeProject = (await response.Content.ReadFromJsonAsync<CurseForgeProjectResponseDto>())!.Data;
+        }
+        catch (Exception e)
+        {
+            return false;
+        }
+        
+        ProjectDto project = new()
+        {
+            CurseForgeId = curseForgeProject.Id.ToString(),
+            CurseForgeUrl = curseForgeProject.Links.WebsiteUrl,
+            CurseForgeDownloads = curseForgeProject.DownloadCount,
+            SyncedAt = DateTime.Now
+        };
+        
+        ProjectDto? savedProject = (await projectService.GetByCurseForgeIdAsync(curseForgeProject.Id.ToString())).Data;
+
+        if (savedProject == null) return false;
+        
+        savedProject.CurseForgeId = curseForgeProject.Id.ToString();
+        savedProject.CurseForgeUrl = curseForgeProject.Links.WebsiteUrl;
+        savedProject.CurseForgeDownloads = curseForgeProject.DownloadCount;
+        savedProject.SyncedAt = DateTime.Now;
+            
+        await projectService.UpdateAsync(savedProject.Id, savedProject);
         
         return true;
     }

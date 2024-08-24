@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Hestia.Application.Dtos.Project.Modrinth;
+namespace Hestia.Application.Dtos.Project.External;
 
 public class ModrinthProjectDto
 {

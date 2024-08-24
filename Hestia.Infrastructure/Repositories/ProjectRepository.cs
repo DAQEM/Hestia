@@ -1,8 +1,10 @@
-﻿using Hestia.Domain.Models;
+﻿using System.Reflection;
+using Hestia.Domain.Models;
 using Hestia.Domain.Repositories;
 using Hestia.Domain.Result;
 using Hestia.Infrastructure.Algorithms;
 using Hestia.Infrastructure.Database;
+using Hestia.Infrastructure.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -48,7 +50,6 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
         projectsQuery = order switch
         {
             ProjectOrder.Name => projectsQuery.OrderBy(p => p.Name),
-            ProjectOrder.Downloads => projectsQuery.OrderByDescending(p => p.Downloads),
             ProjectOrder.CreatedAt => projectsQuery.OrderByDescending(p => p.CreatedAt),
             _ => projectsQuery
         };
@@ -65,6 +66,16 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
                     string.IsNullOrEmpty(query)
                         ? ProjectRelevanceCalculator.CalculateRelevanceScoreWithoutSearchTerm(p)
                         : ProjectRelevanceCalculator.CalculateRelevanceScore(p, query))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+        }
+        else if (order == ProjectOrder.Downloads)
+        {
+            List<Project> projectsList = await projectsQuery.ToListAsync().ConfigureAwait(false);
+            
+            projects = projectsList
+                .OrderByDescending(p => p.CurseForgeDownloads + p.ModrinthDownloads)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
@@ -97,6 +108,21 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
         return await dbContext.Projects.FindAsync(id).ConfigureAwait(false);
     }
 
+    public async Task<Project?> GetBySlugAsync(string slug)
+    {
+        return await dbContext.Projects.FirstOrDefaultAsync(p => p.Slug == slug).ConfigureAwait(false);
+    }
+
+    public async Task<Project?> GetByModrinthIdAsync(string modrinthId)
+    {
+        return await dbContext.Projects.FirstOrDefaultAsync(p => p.ModrinthId == modrinthId).ConfigureAwait(false);
+    }
+    
+    public async Task<Project?> GetByCurseForgeIdAsync(string curseForgeId)
+    {
+        return await dbContext.Projects.FirstOrDefaultAsync(p => p.CurseForgeId == curseForgeId).ConfigureAwait(false);
+    }
+
     public async Task<List<Project>> GetAllAsync()
     {
         return await dbContext.Projects.ToListAsync().ConfigureAwait(false);
@@ -111,7 +137,24 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
 
     public Task<Project> UpdateAsync(int id, Project entity)
     {
-        dbContext.Projects.Update(entity);
+        Project? existingProject = dbContext.Projects.Find(id);
+        
+        if (existingProject is null)
+        {
+            throw new ProjectNotFoundException(id);
+        }
+        
+        foreach (PropertyInfo property in typeof(Project).GetProperties())
+        {
+            object? newValue = property.GetValue(entity);
+            if (newValue != null)
+            {
+                property.SetValue(existingProject, newValue);
+            }
+        }
+        
+        dbContext.Projects.Update(existingProject);
+        
         return Task.FromResult(entity);
     }
 
