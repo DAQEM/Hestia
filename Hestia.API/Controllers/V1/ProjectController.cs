@@ -20,10 +20,10 @@ public class ProjectController(ProjectService projectService, ILogger<ProjectCon
         return HandleResult(result);
     }
     
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetProject(int id)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProject(string id, [FromQuery] bool categories = false, [FromQuery] bool users = false) 
     {
-        IResult<ProjectDto?> result = await projectService.GetAsync(id);
+        IResult<ProjectDto?> result = await projectService.GetByIdOrSlugAsync(id, categories, users);
         return HandleResult(result);
     }
     

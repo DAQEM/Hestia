@@ -113,6 +113,23 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
         return await dbContext.Projects.FirstOrDefaultAsync(p => p.Slug == slug).ConfigureAwait(false);
     }
 
+    public Task<Project?> GetByIdOrSlugAsync(string idOrSlug, bool categories, bool users)
+    {
+        IQueryable<Project> projectsQuery = dbContext.Projects.AsQueryable();
+        
+        if (categories)
+        {
+            projectsQuery = projectsQuery.Include(p => p.Categories);
+        }
+        
+        if (users)
+        {
+            projectsQuery = projectsQuery.Include(p => p.Users);
+        }
+        
+        return projectsQuery.FirstOrDefaultAsync(p => p.Slug == idOrSlug || p.Id.ToString() == idOrSlug);
+    }
+
     public async Task<Project?> GetByModrinthIdAsync(string modrinthId)
     {
         return await dbContext.Projects.FirstOrDefaultAsync(p => p.ModrinthId == modrinthId).ConfigureAwait(false);

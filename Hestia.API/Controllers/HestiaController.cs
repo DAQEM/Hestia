@@ -45,6 +45,9 @@ public abstract class HestiaController(ILogger<HestiaController> logger) : Contr
         {
             Logger.LogError("Result failed: {Message}", result.Message);
         }
-        return BadRequest(result.Message);
+        return BadRequest(new
+        {
+           result.Message
+        });
     }
 }

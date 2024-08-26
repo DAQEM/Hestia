@@ -38,6 +38,13 @@ public class ProjectService(IProjectRepository projectRepository)
         return (project is null ? ProjectNotFoundResult! : ProjectFoundResult(project))!;
     }
     
+    public async Task<ServiceResult<ProjectDto?>> GetByIdOrSlugAsync(string idOrSlug, bool categories, bool users)
+    {
+        Project? project = await projectRepository.GetByIdOrSlugAsync(idOrSlug, categories, users);
+        
+        return (project is null ? ProjectNotFoundResult! : ProjectFoundResult(project))!;
+    }
+    
     public async Task<ServiceResult<ProjectDto?>> GetByModrinthIdAsync(string modrinthId)
     {
         Project? project = await projectRepository.GetByModrinthIdAsync(modrinthId);
