@@ -8,9 +8,9 @@ namespace Hestia.Application.Services;
 
 public class ProjectService(IProjectRepository projectRepository)
 {
-    public async Task<PagedResult<List<ProjectDto>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrderDto? order)
+    public async Task<PagedResult<List<ProjectDto>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrderDto? order, string? user)
     {
-        PagedResult<List<Project>> pagedResult = await projectRepository.SearchAsync(query, page, pageSize, isFeatured, categories, loaders, types, (ProjectOrder) order!);
+        PagedResult<List<Project>> pagedResult = await projectRepository.SearchAsync(query, page, pageSize, isFeatured, categories, loaders, types, (ProjectOrder) order!, user);
         
         return new PagedResult<List<ProjectDto>>
         {

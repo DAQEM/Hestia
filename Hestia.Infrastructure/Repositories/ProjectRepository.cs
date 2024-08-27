@@ -12,7 +12,7 @@ namespace Hestia.Infrastructure.Repositories;
 
 public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
 {
-    public async Task<PagedResult<List<Project>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrder? order)
+    public async Task<PagedResult<List<Project>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrder? order, string? user)
     {
         IQueryable<Project> projectsQuery = dbContext.Projects
             .Include(p => p.Categories)
@@ -45,16 +45,20 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
         if (types is not null)
         {
             projectsQuery = projectsQuery.Where(p => p.Type.HasFlag(Enum.Parse<ProjectType>(string.Join(",", types), true)));
-            
         }
+        
+        if (user is not null)
+        {
+            projectsQuery = projectsQuery.Where(p => p.Users.Any(u => u.Name.Equals(user, StringComparison.CurrentCultureIgnoreCase)));
+        }
+        
         projectsQuery = order switch
         {
             ProjectOrder.Name => projectsQuery.OrderBy(p => p.Name),
             ProjectOrder.CreatedAt => projectsQuery.OrderByDescending(p => p.CreatedAt),
             _ => projectsQuery
         };
-
-
+        
         List<Project> projects;
 
         if (order == ProjectOrder.Relevance)

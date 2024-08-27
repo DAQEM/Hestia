@@ -13,10 +13,10 @@ public class ProjectController(ProjectService projectService, ILogger<ProjectCon
     : HestiaController(logger)
 {
     [HttpGet]
-    public async Task<IActionResult> SearchProjects([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] bool? isFeatured = null, [FromQuery] string[]? categories = null, [FromQuery] string[]? loaders = null, [FromQuery] string[]? types = null, [FromQuery] ProjectOrderDto order = ProjectOrderDto.Relevance)
+    public async Task<IActionResult> SearchProjects([FromQuery] string? query, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, [FromQuery] bool? isFeatured = null, [FromQuery] string[]? categories = null, [FromQuery] string[]? loaders = null, [FromQuery] string[]? types = null, [FromQuery] ProjectOrderDto order = ProjectOrderDto.Relevance, [FromQuery] string? user = null)
     {
         
-        IResult<List<ProjectDto>> result = await projectService.SearchAsync(query, page, pageSize, isFeatured, categories, loaders, types, order);
+        IResult<List<ProjectDto>> result = await projectService.SearchAsync(query, page, pageSize, isFeatured, categories, loaders, types, order, user);
         return HandleResult(result);
     }
     

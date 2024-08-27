@@ -9,5 +9,5 @@ public interface IProjectRepository : IRepository<Project, int>
     Task<Project?> GetByIdOrSlugAsync(string idOrSlug, bool categories, bool users);
     Task<Project?> GetByModrinthIdAsync(string modrinthId);
     Task<Project?> GetByCurseForgeIdAsync(string curseForgeId);
-    Task<PagedResult<List<Project>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrder? order);
+    Task<PagedResult<List<Project>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrder? order, string? user);
 }

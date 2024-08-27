@@ -28,10 +28,6 @@ public static class AuthExtension
                 options.Events.OnRedirectToLogin = context =>
                 {
                     context.Response.StatusCode = 401;
-                    //log comma separated keys
-                    Console.WriteLine("Keys: " +
-                                      context.Request.Cookies.Keys.Aggregate("",
-                                          (current, key) => current + $"{key}, "));
                     return Task.CompletedTask;
                 };
             })

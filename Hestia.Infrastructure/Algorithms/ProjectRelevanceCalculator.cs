@@ -21,8 +21,6 @@ public class ProjectRelevanceCalculator
                                     popularityScore * 0.2 +
                                     featureScore * 0.1 +
                                     publishedScore * 0.1;
-
-            Console.WriteLine(project.Name + " " + relevanceScore);
             
             return relevanceScore;
         }
@@ -38,8 +36,6 @@ public class ProjectRelevanceCalculator
             double relevanceScore = popularityScore * 0.6 +
                                     featureScore * 0.2 +
                                     publishedScore * 0.2;
-
-            Console.WriteLine(project.Name + " " + relevanceScore);
             
             return relevanceScore;
         }
