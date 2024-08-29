@@ -236,6 +236,34 @@ public class UserService(IUserRepository userRepository)
     
     public async Task<IResult<UserDto?>> UpdateNameAndBioAsync(int userId, string name, string bio)
     {
+        Dictionary<string, string[]> errors = new();
+        
+        if (name.Length is > 24 or < 3)
+        {
+            errors.Add(nameof(name), ["Name must be between 3 and 24 characters"]);
+        }
+        
+        if (bio.Length is > 160 or < 5)
+        {
+            errors.Add(nameof(bio), ["Bio must be between 5 and 160 characters"]);
+        }
+        
+        if (name.Contains(' '))
+        {
+            errors.Add(nameof(name), ["Name cannot contain spaces"]);
+        }
+
+        if (errors.Count > 0)
+        {
+            return new ServiceResult<UserDto?>
+            {
+                Data = null,
+                Success = false,
+                Message = "Validation failed",
+                Errors = errors
+            };
+        }
+        
         try
         {
             User? existingUser = await userRepository.GetAsync(userId);

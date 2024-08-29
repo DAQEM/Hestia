@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using Hestia.Application.Dtos.User;
 using Hestia.Application.Services;
 using Hestia.Domain.Result;
 using Hestia.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,6 +35,11 @@ public class UserController(ILogger<HestiaController> logger, UserService userSe
         if (int.TryParse(User.GetId(), out int userId))
         {
             IResult<UserDto?> result = await userService.UpdateNameAndBioAsync(userId, requestDto.Name, requestDto.Bio);
+            
+            User.SetName(requestDto.Name);
+            User.SetBio(requestDto.Bio);
+            
+            await HttpContext.SignInAsync(User);
             
             return HandleResult(result);
         }

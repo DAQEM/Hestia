@@ -55,11 +55,12 @@ public class AuthenticationController: HestiaController
     {
         string? id = User.GetId();
         string? name = User.GetName();
+        string? bio = User.GetBio();
         string? email = User.GetEmail();
         string? image = User.GetImage();
         string? role = User.GetRole();
 
-        if (id is null || name is null || email is null || role is null)
+        if (id is null || name is null || bio is null || email is null || role is null)
         {
             return Unauthorized();
         }
@@ -68,6 +69,7 @@ public class AuthenticationController: HestiaController
         {
             Id = int.Parse(id),
             Name = name,
+            Bio = bio,
             Email = email,
             Image = image,
             Role = Enum.Parse<RoleDto>(role, true)
@@ -100,11 +102,13 @@ public class AuthenticationController: HestiaController
         }
         
         claimsIdentity.RemoveClaim(claimsIdentity.FindFirst(ClaimTypes.Name));
+        claimsIdentity.RemoveClaim(claimsIdentity.FindFirst("Bio"));
         claimsIdentity.RemoveClaim(claimsIdentity.FindFirst(ClaimTypes.Email));
         claimsIdentity.RemoveClaim(claimsIdentity.FindFirst(ClaimTypes.Role));
         claimsIdentity.RemoveClaim(claimsIdentity.FindFirst(ClaimTypes.Uri));
 
         claimsIdentity.AddClaim(new Claim(ClaimTypes.Name, existingUser.Name));
+        claimsIdentity.AddClaim(new Claim("Bio", existingUser.Bio));
         claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, existingUser.Email));
         claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, existingUser.Role.ToString().ToLower()));
         

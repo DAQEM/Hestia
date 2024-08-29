@@ -168,10 +168,11 @@ public class HestiaAuthenticationHandler : CookieAuthenticationHandler
         HestiaDbContext dbContext = Context.RequestServices.GetRequiredService<HestiaDbContext>();
         string? id = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.NameIdentifier))?.Value;
         string? name = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Name))?.Value;
+        string? bio = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals("Bio"))?.Value;
         string? email = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;
         string? role = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Role))?.Value;
         
-        if (id is null || name is null || email is null || role is null)
+        if (id is null || name is null || bio is null || email is null || role is null)
         {
             return false;
         }
@@ -185,7 +186,7 @@ public class HestiaAuthenticationHandler : CookieAuthenticationHandler
         
         if (!user.Name.EqualsIgnoreCase(name) || !user.Email.EqualsIgnoreCase(email) || !user.Role.ToString().EqualsIgnoreCase(role))
         {
-            var x = Context.Request.Path.Value?.ContainsIgnoreCase("authentication/refresh");
+            bool? x = Context.Request.Path.Value?.ContainsIgnoreCase("authentication/refresh");
             return x ?? false;
         }
         

@@ -45,6 +45,12 @@ public abstract class HestiaController(ILogger<HestiaController> logger) : Contr
         {
             Logger.LogError("Result failed: {Message}", result.Message);
         }
+        
+        if (result.Errors.Count > 0)
+        {
+            return ValidationProblem(new ValidationProblemDetails(result.Errors));
+        }
+        
         return BadRequest(new
         {
            result.Message

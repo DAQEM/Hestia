@@ -64,6 +64,7 @@ public static class OnCreatingTicketEvent
             existingUser.Image = user.Image;
             
             user.Name = existingUser.Name;
+            user.Bio = existingUser.Bio;
             user.Role = existingUser.Role;
             user.Id = existingUser.Id;
 
@@ -109,6 +110,7 @@ public static class OnCreatingTicketEvent
             
             claimsIdentity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
             claimsIdentity.AddClaim(new Claim(ClaimTypes.Name, user.Name));
+            claimsIdentity.AddClaim(new Claim("Bio", user.Bio));
             claimsIdentity.AddClaim(new Claim(ClaimTypes.Role, user.Role.ToString().ToLower()));
             
             if (user.Image is not null)
