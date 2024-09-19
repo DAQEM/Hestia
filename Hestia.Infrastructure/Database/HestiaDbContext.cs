@@ -116,9 +116,8 @@ public class HestiaDbContext : DbContext
         
         builder.Entity<User>()
             .HasMany(u => u.Posts)
-            .WithOne(p => p.User)
-            .HasForeignKey(p => p.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .WithMany(p => p.Users)
+            .UsingEntity(j => j.ToTable("UserPost"));
 
         builder.Entity<User>()
             .HasMany(u => u.Comments)
