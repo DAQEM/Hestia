@@ -29,6 +29,8 @@ public static class SwaggerExtension
             });
     
             options.OperationFilter<SecurityRequirementsOperationFilter>();
+            
+            options.EnableAnnotations();
         });
     }
     

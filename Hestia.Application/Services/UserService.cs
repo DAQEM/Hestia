@@ -1,7 +1,8 @@
-using Hestia.Application.Dtos.User;
+using Hestia.Application.Dtos.Users;
 using Hestia.Application.Result;
-using Hestia.Domain.Models;
+using Hestia.Domain.Models.Users;
 using Hestia.Domain.Repositories;
+using Hestia.Domain.Repositories.Users;
 using Hestia.Domain.Result;
 
 namespace Hestia.Application.Services;
@@ -29,10 +30,10 @@ public class UserService(IUserRepository userRepository)
             Message = "User found"
         };
     }
-    
-    public async Task<IResult<UserDto?>> GetUserWithAccountByEmailAsync(string email)
+
+    public async Task<IResult<UserDto?>> GetUserByUserNameAsync(string username)
     {
-        User? user = await userRepository.GetUserWithAccountByEmailAsync(email);
+        User? user = await userRepository.GetUserByUserNameAsync(username);
         
         if (user is null)
         {
@@ -51,7 +52,29 @@ public class UserService(IUserRepository userRepository)
             Message = "User found"
         };
     }
-    
+
+    public async Task<IResult<UserDto?>> GetByOAuthIdAsync(OAuthProvider provider, string userId)
+    {
+        User? user = await userRepository.GetByOAuthIdAsync(provider, userId);
+        
+        if (user is null)
+        {
+            return new ServiceResult<UserDto?>
+            {
+                Data = null,
+                Success = false,
+                Message = "User not found"
+            };
+        }
+        
+        return new ServiceResult<UserDto?>
+        {
+            Data = UserDto.FromModel(user),
+            Success = true,
+            Message = "User found"
+        };
+    }
+
     public async Task<IResult<IEnumerable<UserDto>>> GetAllAsync()
     {
         IEnumerable<User> users = await userRepository.GetAllAsync();
@@ -63,14 +86,13 @@ public class UserService(IUserRepository userRepository)
             Message = "Users found"
         };
     }
-    
+
     public async Task<IResult<UserDto>> AddAsync(UserDto user)
     {
         try
         {
-            user.Bio = "Hi, I'm new here!";
-            user.Joined = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
-            user.LastActive = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
+            user.Joined = DateTime.UtcNow;
+            user.LastActive = DateTime.UtcNow;
             
             User addedUser = await userRepository.AddAsync(user.ToModel());
 
@@ -93,7 +115,7 @@ public class UserService(IUserRepository userRepository)
             };
         }
     }
-    
+
     public async Task<IResult<UserDto>> UpdateAsync(int id, UserDto user)
     {
         try
@@ -114,7 +136,6 @@ public class UserService(IUserRepository userRepository)
             existingUser.Email = user.Email;
             existingUser.Image = user.Image;
             existingUser.Role = (Role) user.Role;
-            existingUser.Accounts = user.Accounts?.Select(x => x.ToModel()).ToList() ?? [];
 
             await userRepository.SaveChangesAsync();
             
@@ -135,7 +156,7 @@ public class UserService(IUserRepository userRepository)
             };
         }
     }
-    
+
     public async Task<IResult<UserDto>> DeleteAsync(int id)
     {
         try
@@ -173,30 +194,8 @@ public class UserService(IUserRepository userRepository)
             };
         }
     }
-    
-    public async Task<IResult<UserDto?>> GetUserByUserNameAsync(string username)
-    {
-        User? user = await userRepository.GetUserByUserNameAsync(username);
-        
-        if (user is null)
-        {
-            return new ServiceResult<UserDto?>
-            {
-                Data = null,
-                Success = false,
-                Message = "User not found"
-            };
-        }
-        
-        return new ServiceResult<UserDto?>
-        {
-            Data = UserDto.FromModel(user),
-            Success = true,
-            Message = "User found"
-        };
-    }
-    
-    public async Task<IResult<bool>> UpdateUserLastActive(int userId, long lastActive)
+
+    public async Task<IResult<bool>> UpdateUserLastActive(int userId, DateTime lastActive)
     {
         try
         {
@@ -233,7 +232,7 @@ public class UserService(IUserRepository userRepository)
             };
         }
     }
-    
+
     public async Task<IResult<UserDto?>> UpdateNameAndBioAsync(int userId, string name, string bio)
     {
         Dictionary<string, string[]> errors = new();
@@ -299,5 +298,11 @@ public class UserService(IUserRepository userRepository)
                 Message = ex.Message
             };
         }
+    }
+
+    public async Task UpdateOAuthIdAsync(int userId, OAuthProvider provider, string oAuthUserId)
+    {
+        await userRepository.UpdateOAuthIdAsync(userId, provider, oAuthUserId);
+        await userRepository.SaveChangesAsync();
     }
 }

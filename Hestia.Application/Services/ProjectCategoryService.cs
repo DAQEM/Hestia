@@ -1,7 +1,8 @@
-using Hestia.Application.Dtos.Project;
+using Hestia.Application.Dtos.Projects;
 using Hestia.Application.Result;
-using Hestia.Domain.Models;
+using Hestia.Domain.Models.Projects;
 using Hestia.Domain.Repositories;
+using Hestia.Domain.Repositories.Projects;
 using Hestia.Domain.Result;
 
 namespace Hestia.Application.Services;

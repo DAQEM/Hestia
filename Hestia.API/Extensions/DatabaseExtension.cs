@@ -17,7 +17,7 @@ public static class DatabaseExtension
         
         services.AddDbContext<HestiaDbContext>(options =>
         {
-            options.UseMySQL(connectionString, builder =>
+            options.UseNpgsql(connectionString, builder =>
             {
                 builder.MigrationsAssembly("Hestia.API");
             });

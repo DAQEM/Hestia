@@ -12,7 +12,7 @@ public class HestiaMiddleware(RequestDelegate next)
             UserService userService = context.RequestServices.GetRequiredService<UserService>();
             if (int.TryParse(context.User.GetId(), out int userId))
             {
-                await userService.UpdateUserLastActive(userId, new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds());
+                await userService.UpdateUserLastActive(userId, DateTime.UtcNow);
             }
         }
         await next(context);

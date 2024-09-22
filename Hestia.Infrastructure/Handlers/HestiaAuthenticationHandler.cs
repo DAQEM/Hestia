@@ -1,195 +1,76 @@
-using System.Diagnostics;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
-using Hestia.Domain.Extensions;
-using Hestia.Domain.Models;
-using Hestia.Infrastructure.Database;
+using Hestia.Application.Dtos.Users;
+using Hestia.Application.Services.Auth;
+using Hestia.Infrastructure.Options;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Hestia.Infrastructure.Handlers;
 
-public class HestiaAuthenticationHandler : CookieAuthenticationHandler
+public class HestiaAuthenticationHandler(
+    IOptionsMonitor<HestiaAuthenticationOptions> options,
+    ILoggerFactory logger,
+    UrlEncoder encoder,
+    ISystemClock clock)
+    : AuthenticationHandler<HestiaAuthenticationOptions>(options, logger, encoder, clock)
 {
-    public HestiaAuthenticationHandler(IOptionsMonitor<CookieAuthenticationOptions> options, ILoggerFactory logger, UrlEncoder encoder) : base(options, logger, encoder)
-    {
-    }
-    
-    private const string SessionIdClaim = "Microsoft.AspNetCore.Authentication.Cookies-SessionId";
-    
-    private string? _sessionKey;
-    private Task<AuthenticateResult>? _readCookieTask;
-
-    protected new CookieAuthenticationEvents Events
-    {
-        get => base.Events;
-        set => base.Events = value;
-    }
-
-    protected override Task InitializeHandlerAsync()
-    {
-        Context.Response.OnStarting(FinishResponseAsync);
-        return Task.CompletedTask;
-    }
-
-    protected override Task<object> CreateEventsAsync() => Task.FromResult<object>(new CookieAuthenticationEvents());
-
-    private Task<AuthenticateResult> EnsureCookieTicket()
-    {
-        return _readCookieTask ??= ReadCookieAndBearerTicket();
-    }
-
-    private async Task CheckForRefreshAsync(AuthenticationTicket ticket)
-    {
-        DateTimeOffset currentUtc = TimeProvider.GetUtcNow();
-        DateTimeOffset? issuedUtc = ticket.Properties.IssuedUtc;
-        DateTimeOffset? expiresUtc = ticket.Properties.ExpiresUtc;
-        bool allowRefresh = ticket.Properties.AllowRefresh ?? true;
-        if (issuedUtc != null && expiresUtc != null && Options.SlidingExpiration && allowRefresh)
-        {
-            TimeSpan timeElapsed = currentUtc.Subtract(issuedUtc.Value);
-            TimeSpan timeRemaining = expiresUtc.Value.Subtract(currentUtc);
-
-            CookieSlidingExpirationContext eventContext = new(Context, Scheme, Options, ticket, timeElapsed, timeRemaining)
-            {
-                ShouldRenew = timeRemaining < timeElapsed,
-            };
-            await Events.CheckSlidingExpiration(eventContext);
-        }
-    }
-
-    private async Task<AuthenticateResult> ReadCookieAndBearerTicket()
-    {
-        string? cookie = Options.CookieManager.GetRequestCookie(Context, Options.Cookie.Name!);
-        if (string.IsNullOrEmpty(cookie))
-        {
-            string? bearer = Context.Request.Headers.Authorization.FirstOrDefault()?.Split(" ").LastOrDefault();
-            if (string.IsNullOrEmpty(bearer))
-            {
-                return AuthenticateResult.NoResult();
-            }
-            cookie = bearer;
-        }
-
-        AuthenticationTicket? ticket = Options.TicketDataFormat.Unprotect(cookie, GetTlsTokenBinding());
-        if (ticket == null)
-        {
-            return AuthenticateResults.FailedUnprotectingTicket;
-        }
-        
-        bool result = await CompareClaimsAgainstDatabase(ticket);
-        if (!result)
-        {
-            await Context.SignOutAsync();
-            return AuthenticateResult.Fail("Unauthorized");
-        }
-
-        if (Options.SessionStore != null)
-        {
-            Claim? claim = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(SessionIdClaim));
-            if (claim == null)
-            {
-                return AuthenticateResults.MissingSessionId;
-            }
-            // Only store _sessionKey if it matches an existing session. Otherwise we'll create a new one.
-            ticket = await Options.SessionStore.RetrieveAsync(claim.Value, Context, Context.RequestAborted);
-            if (ticket == null)
-            {
-                return AuthenticateResults.MissingIdentityInSession;
-            }
-            _sessionKey = claim.Value;
-        }
-
-        DateTimeOffset currentUtc = TimeProvider.GetUtcNow();
-        DateTimeOffset? expiresUtc = ticket.Properties.ExpiresUtc;
-
-        if (expiresUtc != null && expiresUtc.Value < currentUtc)
-        {
-            if (Options.SessionStore != null)
-            {
-                await Options.SessionStore.RemoveAsync(_sessionKey!, Context, Context.RequestAborted);
-
-                // Clear out the session key if its expired, so renew doesn't try to use it
-                _sessionKey = null;
-            }
-            return AuthenticateResults.ExpiredTicket;
-        }
-
-        // Finally we have a valid ticket
-        return AuthenticateResult.Success(ticket);
-    }
-
-    /// <inheritdoc />
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        AuthenticateResult result = await EnsureCookieTicket();
-        if (!result.Succeeded)
-        {
-            return result;
-        }
-
-        // We check this before the ValidatePrincipal event because we want to make sure we capture a clean clone
-        // without picking up any per-request modifications to the principal.
-        await CheckForRefreshAsync(result.Ticket);
-
-        Debug.Assert(result.Ticket != null);
-        CookieValidatePrincipalContext context = new(Context, Scheme, Options, result.Ticket);
-        await Events.ValidatePrincipal(context);
-
-        if (context.Principal == null)
-        {
-            return AuthenticateResults.NoPrincipal;
-        }
-
-        return AuthenticateResult.Success(new AuthenticationTicket(context.Principal, context.Properties, Scheme.Name));
-    }
-
-    private string? GetTlsTokenBinding()
-    {
-        byte[]? binding = Context.Features.Get<ITlsTokenBindingFeature>()?.GetProvidedTokenBindingId();
-        return binding == null ? null : Convert.ToBase64String(binding);
-    }
-
-    private static class AuthenticateResults
-    {
-        internal static AuthenticateResult FailedUnprotectingTicket = AuthenticateResult.Fail("Unprotect ticket failed");
-        internal static AuthenticateResult MissingSessionId = AuthenticateResult.Fail("SessionId missing");
-        internal static AuthenticateResult MissingIdentityInSession = AuthenticateResult.Fail("Identity missing in session store");
-        internal static AuthenticateResult ExpiredTicket = AuthenticateResult.Fail("Ticket expired");
-        internal static AuthenticateResult NoPrincipal = AuthenticateResult.Fail("No principal.");
-    }
-
-    private async Task<bool> CompareClaimsAgainstDatabase(AuthenticationTicket ticket)
-    {
-        HestiaDbContext dbContext = Context.RequestServices.GetRequiredService<HestiaDbContext>();
-        string? id = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.NameIdentifier))?.Value;
-        string? name = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Name))?.Value;
-        string? bio = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals("Bio"))?.Value;
-        string? email = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;
-        string? role = ticket.Principal.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Role))?.Value;
+        string? token = Request.Headers["Authorization"].FirstOrDefault();
         
-        if (id is null || name is null || bio is null || email is null || role is null)
+        if (token is null || string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
         {
-            return false;
+            return AuthenticateResult.NoResult();
         }
         
-        User? user = await dbContext.Users.FindAsync(int.Parse(id));
+        token = token["Bearer ".Length..];
+        
+        if (string.IsNullOrEmpty(token) || token.Split('_').Length != 2)
+        {
+            return AuthenticateResult.NoResult();
+        }
+        
+        string tokenPrefix = token.Split('_')[0];
+        
+        UserDto? user = tokenPrefix switch
+        {
+            "ses" => await Context.RequestServices.GetRequiredService<SessionService>().GetUserByTokenAsync(token),
+            "api" => null,
+            _ => null
+        };
         
         if (user is null)
         {
-            return false;
+            return AuthenticateResult.Fail("Invalid token");
         }
+
+        List<Claim> claims = [
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, user.Name),
+            new(ClaimTypes.Role, user.Role.ToString()),
+            new(ClaimTypes.Email, user.Email),
+        ];
         
-        if (!user.Name.EqualsIgnoreCase(name) || !user.Email.EqualsIgnoreCase(email) || !user.Role.ToString().EqualsIgnoreCase(role))
+        if (user.Bio is not null)
         {
-            bool? x = Context.Request.Path.Value?.ContainsIgnoreCase("authentication/refresh");
-            return x ?? false;
+            claims.Add(new Claim("user.bio", user.Bio));
         }
         
-        return true;
+        if (user.Image is not null)
+        {
+            claims.Add(new Claim("user.image", user.Image));
+        }
+
+        ClaimsIdentity identity = new(claims, Scheme.Name);
+        ClaimsPrincipal principal = new(identity);
+        
+        AuthenticationTicket ticket = new(principal, Scheme.Name);
+        
+        return AuthenticateResult.Success(ticket);
+
+        
     }
 }

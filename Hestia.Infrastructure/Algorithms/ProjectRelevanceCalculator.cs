@@ -1,4 +1,4 @@
-using Hestia.Domain.Models;
+using Hestia.Domain.Models.Projects;
 
 namespace Hestia.Infrastructure.Algorithms;
 

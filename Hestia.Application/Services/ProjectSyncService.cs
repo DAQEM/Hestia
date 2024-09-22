@@ -1,8 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using Hestia.Application.Dtos.Project;
-using Hestia.Application.Dtos.Project.External;
-using Hestia.Domain.Models;
+using Hestia.Application.Dtos.Projects;
+using Hestia.Application.Dtos.Projects.External;
 
 namespace Hestia.Application.Services;
 

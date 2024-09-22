@@ -1,16 +1,17 @@
-﻿using Hestia.Application.Dtos.Project;
+﻿using Hestia.Application.Dtos.Projects;
 using Hestia.Application.Result;
-using Hestia.Domain.Models;
+using Hestia.Domain.Models.Projects;
 using Hestia.Domain.Repositories;
+using Hestia.Domain.Repositories.Projects;
 using Hestia.Domain.Result;
 
 namespace Hestia.Application.Services;
 
 public class ProjectService(IProjectRepository projectRepository)
 {
-    public async Task<PagedResult<List<ProjectDto>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrderDto? order, string? user)
+    public async Task<PagedResult<List<ProjectDto>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrder? order, string? user)
     {
-        PagedResult<List<Project>> pagedResult = await projectRepository.SearchAsync(query, page, pageSize, isFeatured, categories, loaders, types, (ProjectOrder) order!, user);
+        PagedResult<List<Project>> pagedResult = await projectRepository.SearchAsync(query, page, pageSize, isFeatured, categories, loaders, types, order!, user);
         
         return new PagedResult<List<ProjectDto>>
         {

@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
-using Hestia.Domain.Models;
+using Hestia.Domain.Models.Blogs;
+using Hestia.Domain.Models.Projects;
+using Hestia.Domain.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -12,17 +14,17 @@ public class HestiaDbContext : DbContext
     {
     }
 
-    public DbSet<Account> Accounts { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Session> Sessions { get; set; } = null!;
+    public DbSet<OAuthState> OAuthStates { get; set; } = null!;
 
     public DbSet<Project> Projects { get; set; } = null!;
     public DbSet<ProjectCategory> ProjectCategories { get; set; } = null!;
     public DbSet<ProjectVersion> ProjectVersions { get; set; } = null!;
     
-    public DbSet<Post> Posts { get; set; } = null!;
-    public DbSet<PostCategory> PostCategories { get; set; } = null!;
-    public DbSet<PostComment> PostComments { get; set; } = null!;
-    public DbSet<PostMeta> PostMeta { get; set; } = null!;
+    public DbSet<Blog> Posts { get; set; } = null!;
+    public DbSet<BlogCategory> PostCategories { get; set; } = null!;
+    public DbSet<BlogComment> PostComments { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -42,17 +44,24 @@ public class HestiaDbContext : DbContext
 
         builder.ApplyConfigurationsFromAssembly(typeof(HestiaDbContext).Assembly);
 
-        #region User Configuration
-        
-        builder.Entity<Account>()
-            .HasOne(a => a.User)
-            .WithMany(u => u.Accounts)
-            .HasForeignKey(a => a.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+        #region Auth Configuration
 
-        builder.Entity<Account>()
-            .HasIndex(a => new { a.Provider, a.ProviderAccountId })
+        builder.Entity<Session>()
+            .HasOne(s => s.User)
+            .WithMany(u => u.Sessions)
+            .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<Session>()
+            .HasIndex(s => s.Token)
             .IsUnique();
+        
+        builder.Entity<OAuthState>()
+            .HasIndex(o => o.State)
+            .IsUnique();
+        
+        #endregion
+        #region User Configuration
 
         builder.Entity<User>()
             .HasIndex(u => u.Name)
@@ -126,44 +135,38 @@ public class HestiaDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Entity<Project>()
-            .HasMany(p => p.Posts)
+            .HasMany(p => p.Blogs)
             .WithMany(p => p.Projects)
             .UsingEntity(j => j.ToTable("PostProject"));
 
-        builder.Entity<Post>()
+        builder.Entity<Blog>()
             .HasMany(p => p.Comments)
-            .WithOne(c => c.Post)
-            .HasForeignKey(c => c.PostId)
+            .WithOne(c => c.Blog)
+            .HasForeignKey(c => c.BlogId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<Post>()
-            .HasMany(p => p.Meta)
-            .WithOne(m => m.Post)
-            .HasForeignKey(m => m.PostId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.Entity<Post>()
+        builder.Entity<Blog>()
             .HasMany(p => p.Categories)
-            .WithMany(c => c.Posts)
+            .WithMany(c => c.Blogs)
             .UsingEntity(j => j.ToTable("PostCategory"));
 
-        builder.Entity<PostComment>()
+        builder.Entity<BlogComment>()
             .HasOne(c => c.Parent)
             .WithMany(c => c.Children)
             .HasForeignKey(c => c.ParentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<PostCategory>()
+        builder.Entity<BlogCategory>()
             .HasOne(c => c.Parent)
             .WithMany(c => c.Children)
             .HasForeignKey(c => c.ParentId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.Entity<Post>()
+        builder.Entity<Blog>()
             .HasIndex(p => p.Slug)
             .IsUnique();
 
-        builder.Entity<PostCategory>()
+        builder.Entity<BlogCategory>()
             .HasIndex(c => c.Slug)
             .IsUnique();
         

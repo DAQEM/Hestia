@@ -11,26 +11,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="AspNet.Security.OAuth.Discord" Version="8.0.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.Owin" Version="4.2.2" />
-      <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Microsoft.AspNetCore.Identity">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.1\Microsoft.AspNetCore.Identity.dll</HintPath>
-      </Reference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="Microsoft.AspNetCore.Identity">
-        <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\8.0.1\Microsoft.AspNetCore.Identity.dll</HintPath>
-      </Reference>
+      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
     </ItemGroup>
 
 </Project>

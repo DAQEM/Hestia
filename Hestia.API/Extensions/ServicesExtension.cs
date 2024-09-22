@@ -1,4 +1,5 @@
 ﻿using Hestia.Application.Services;
+using Hestia.Application.Services.Auth;
 
 namespace Hestia.API.Extensions;
 
@@ -10,6 +11,8 @@ public static class ServicesExtension
         services.AddScoped<UserService>();
         services.AddScoped<ProjectCategoryService>();
         services.AddScoped<ProjectSyncService>();
+        services.AddScoped<OAuthStateService>();
+        services.AddScoped<OAuthProviderService>();
+        services.AddScoped<SessionService>();
     }
-    
 }

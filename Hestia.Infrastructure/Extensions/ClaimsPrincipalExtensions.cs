@@ -17,7 +17,7 @@ public static class ClaimsPrincipalExtensions
     
     public static string? GetBio(this ClaimsPrincipal principal)
     {
-        return principal.Claims.FirstOrDefault(x => x.Type.EqualsIgnoreCase("Bio"))?.Value;
+        return principal.Claims.FirstOrDefault(x => x.Type.EqualsIgnoreCase("user.bio"))?.Value;
     }
 
     public static string? GetEmail(this ClaimsPrincipal principal)
@@ -27,7 +27,7 @@ public static class ClaimsPrincipalExtensions
 
     public static string? GetImage(this ClaimsPrincipal principal)
     {
-        return principal.Claims.FirstOrDefault(x => x.Type.EqualsIgnoreCase(ClaimTypes.Uri))?.Value;
+        return principal.Claims.FirstOrDefault(x => x.Type.EqualsIgnoreCase("user.image"))?.Value;
     }
 
     public static string? GetRole(this ClaimsPrincipal principal)
