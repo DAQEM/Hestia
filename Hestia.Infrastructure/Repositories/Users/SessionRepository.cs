@@ -12,16 +12,18 @@ public class SessionRepository(HestiaDbContext dbContext) : ISessionRepository
         return await dbContext.Sessions.FindAsync(id);
     }
 
-    public async Task<Session?> GetByTokenAsync(string token)
+    public async Task<Session?> GetByTokenAsync(string token, bool ignoreExpiration = false)
     {
-        return await dbContext.Sessions.FirstOrDefaultAsync(s => s.Token == token);
+        return await dbContext.Sessions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.Token == token && (ignoreExpiration || s.ExpiresAt > DateTime.UtcNow));
     }
 
-    public Task<User?> GetUserByTokenAsync(string token)
+    public Task<User?> GetUserByTokenAsync(string token, bool ignoreExpiration = false)
     {
         return dbContext.Sessions
             .Include(s => s.User)
-            .Where(s => s.Token == token)
+            .Where(s => s.Token == token && (ignoreExpiration || s.ExpiresAt > DateTime.UtcNow))
             .Select(s => s.User)
             .FirstOrDefaultAsync();
     }
@@ -46,6 +48,14 @@ public class SessionRepository(HestiaDbContext dbContext) : ISessionRepository
     public async Task<bool> DeleteAsync(int id)
     {
         Session? session = await dbContext.Sessions.FindAsync(id);
+        if (session is null) return false;
+        dbContext.Sessions.Remove(session);
+        return true;
+    }
+
+    public async Task<bool> DeleteByTokenAsync(string token)
+    {
+        Session? session = await dbContext.Sessions.FirstOrDefaultAsync(s => s.Token == token);
         if (session is null) return false;
         dbContext.Sessions.Remove(session);
         return true;

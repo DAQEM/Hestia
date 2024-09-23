@@ -60,11 +60,6 @@ public class UserController(ILogger<HestiaController> logger, UserService userSe
         {
             IResult<UserDto?> result = await userService.UpdateNameAndBioAsync(userId, requestDto.Name, requestDto.Bio);
             
-            User.SetName(requestDto.Name);
-            User.SetBio(requestDto.Bio);
-            
-            await HttpContext.SignInAsync(User);
-            
             return HandleResult(result);
         }
         return Unauthorized();

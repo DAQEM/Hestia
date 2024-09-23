@@ -2,9 +2,9 @@ using System.Security.Claims;
 using System.Text.Encodings.Web;
 using Hestia.Application.Dtos.Users;
 using Hestia.Application.Services.Auth;
+using Hestia.Domain.Extensions;
 using Hestia.Infrastructure.Options;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -14,7 +14,9 @@ public class HestiaAuthenticationHandler(
     IOptionsMonitor<HestiaAuthenticationOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    ISystemClock clock)
+    ISystemClock clock,
+    SessionService sessionService
+    )
     : AuthenticationHandler<HestiaAuthenticationOptions>(options, logger, encoder, clock)
 {
     protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -34,10 +36,12 @@ public class HestiaAuthenticationHandler(
         }
         
         string tokenPrefix = token.Split('_')[0];
+        string? endpoint = Context.Request.Path.Value;
+        bool ignoreExpiration = endpoint.EqualsIgnoreCase("/api/v1/auth/refresh");
         
         UserDto? user = tokenPrefix switch
         {
-            "ses" => await Context.RequestServices.GetRequiredService<SessionService>().GetUserByTokenAsync(token),
+            "ses" => await sessionService.GetUserByTokenAsync(token, ignoreExpiration),
             "api" => null,
             _ => null
         };
@@ -52,6 +56,7 @@ public class HestiaAuthenticationHandler(
             new(ClaimTypes.Name, user.Name),
             new(ClaimTypes.Role, user.Role.ToString()),
             new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Authentication, token)
         ];
         
         if (user.Bio is not null)

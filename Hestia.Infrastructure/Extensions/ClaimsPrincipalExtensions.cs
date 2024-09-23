@@ -35,17 +35,8 @@ public static class ClaimsPrincipalExtensions
         return principal.Claims.FirstOrDefault(x => x.Type.EqualsIgnoreCase(ClaimTypes.Role))?.Value.ToLower();
     }
     
-    public static void SetName(this ClaimsPrincipal principal, string name)
+    public static string? GetToken(this ClaimsPrincipal principal)
     {
-        ClaimsIdentity? identity = principal.Identity as ClaimsIdentity;
-        identity?.RemoveClaim(identity.FindFirst(ClaimTypes.Name));
-        identity?.AddClaim(new Claim(ClaimTypes.Name, name));
-    }
-    
-    public static void SetBio(this ClaimsPrincipal principal, string bio)
-    {
-        ClaimsIdentity? identity = principal.Identity as ClaimsIdentity;
-        identity?.RemoveClaim(identity.FindFirst("Bio"));
-        identity?.AddClaim(new Claim("Bio", bio));
+        return principal.Claims.FirstOrDefault(x => x.Type.EqualsIgnoreCase(ClaimTypes.Authentication))?.Value;
     }
 }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.RegularExpressions;
+using Hestia.API.Models.Responses.Auth;
 using Hestia.Application.Dtos.Users;
 using Hestia.Application.Models.Responses;
 using Hestia.Application.Options;
@@ -8,7 +9,8 @@ using Hestia.Application.Services;
 using Hestia.Application.Services.Auth;
 using Hestia.Domain.Models.Users;
 using Hestia.Domain.Result;
-using Hestia.Infrastructure.Options;
+using Hestia.Infrastructure.Extensions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.Annotations;
@@ -182,5 +184,60 @@ public class AuthController(
         }
 
         return Redirect(oAuthState.ReturnUri);
+    }
+    
+    [HttpGet("logout")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status302Found)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [SwaggerOperation(
+        Summary = "Logs the user out",
+        Description = "Logs the user out",
+        OperationId = "Logout",
+        Tags = ["Auth"]
+    )]
+    public async Task<IActionResult> Logout([FromQuery] string? returnUrl)
+    {
+        string? token = User.GetToken();
+        
+        if (token is null) return Unauthorized();
+        
+        await sessionService.DeleteByTokenAsync(token);
+        
+        return returnUrl is not null ? Redirect(returnUrl) : NoContent();
+    }
+    
+    [HttpGet("refresh")]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(SessionTokenResponse), StatusCodes.Status200OK)]
+    [SwaggerOperation(
+        Summary = "Refreshes the user's session",
+        Description = "Refreshes the user's session",
+        OperationId = "Refresh",
+        Tags = ["Auth"]
+    )]
+    public async Task<IActionResult> Refresh()
+    {
+        string? token = User.GetToken();
+        
+        if (token is null) return Unauthorized();
+        
+        SessionDto? session = await sessionService.GetByTokenAsync(token, true);
+        
+        if (session is null) return Unauthorized();
+        
+        session.Token = "ses_" + TokenService.GenerateToken(60);
+        session.LastUsedAt = DateTime.UtcNow;
+        session.ExpiresAt = DateTime.UtcNow.AddHours(1);
+        session.RefreshExpiresAt = DateTime.UtcNow.AddDays(90);
+        
+        await sessionService.UpdateAsync(session);
+        
+        return Ok(new SessionTokenResponse
+        {
+            Token = session.Token,
+            ExpiresAt = session.RefreshExpiresAt
+        });
     }
 }
