@@ -1,9 +1,10 @@
+using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Users;
-using Hestia.Domain.Repositories.Users;
+using Hestia.Domain.Repositories.Auth;
 using Hestia.Infrastructure.Database;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hestia.Infrastructure.Repositories.Users;
+namespace Hestia.Infrastructure.Repositories.Auth;
 
 public class SessionRepository(HestiaDbContext dbContext) : ISessionRepository
 {

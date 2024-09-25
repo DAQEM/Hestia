@@ -1,7 +1,8 @@
-namespace Hestia.Domain.Models.Users;
+namespace Hestia.Application.Dtos.Auth;
 
-public class Session : Model<int>
+public class SessionDto
 {
+    public int Id { get; set; }
     public string Token { get; set; }
     public int UserId { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -14,6 +15,4 @@ public class Session : Model<int>
     public string? Browser { get; set; }
     public string? Country { get; set; }
     public string? City { get; set; }
-    
-    public User User { get; set; }
 }

@@ -1,11 +1,10 @@
 ﻿using Hestia.Application.Dtos.Projects;
 using Hestia.Application.Result;
 using Hestia.Domain.Models.Projects;
-using Hestia.Domain.Repositories;
 using Hestia.Domain.Repositories.Projects;
 using Hestia.Domain.Result;
 
-namespace Hestia.Application.Services;
+namespace Hestia.Application.Services.Projects;
 
 public class ProjectService(IProjectRepository projectRepository)
 {
@@ -29,35 +28,35 @@ public class ProjectService(IProjectRepository projectRepository)
     {
         Project? project = await projectRepository.GetAsync(id);
         
-        return (project is null ? ProjectNotFoundResult! : ProjectFoundResult(project))!;
+        return (project is null ? ProjectNotFoundResult : ProjectFoundResult(project))!;
     }
     
     public async Task<ServiceResult<ProjectDto?>> GetBySlugAsync(string slug)
     {
         Project? project = await projectRepository.GetBySlugAsync(slug);
         
-        return (project is null ? ProjectNotFoundResult! : ProjectFoundResult(project))!;
+        return (project is null ? ProjectNotFoundResult : ProjectFoundResult(project))!;
     }
     
     public async Task<ServiceResult<ProjectDto?>> GetByIdOrSlugAsync(string idOrSlug, bool categories, bool users)
     {
         Project? project = await projectRepository.GetByIdOrSlugAsync(idOrSlug, categories, users);
         
-        return (project is null ? ProjectNotFoundResult! : ProjectFoundResult(project))!;
+        return (project is null ? ProjectNotFoundResult : ProjectFoundResult(project))!;
     }
     
     public async Task<ServiceResult<ProjectDto?>> GetByModrinthIdAsync(string modrinthId)
     {
         Project? project = await projectRepository.GetByModrinthIdAsync(modrinthId);
         
-        return (project is null ? ProjectNotFoundResult! : ProjectFoundResult(project))!;
+        return (project is null ? ProjectNotFoundResult : ProjectFoundResult(project))!;
     }
     
     public async Task<ServiceResult<ProjectDto?>> GetByCurseForgeIdAsync(string curseForgeId)
     {
         Project? project = await projectRepository.GetByCurseForgeIdAsync(curseForgeId);
         
-        return (project is null ? ProjectNotFoundResult! : ProjectFoundResult(project))!;
+        return (project is null ? ProjectNotFoundResult : ProjectFoundResult(project))!;
     }
 
     public async Task<ServiceResult<IEnumerable<ProjectDto>>> GetAllAsync()
@@ -131,7 +130,7 @@ public class ProjectService(IProjectRepository projectRepository)
         Message = "Project not found"
     };
     
-    private static ServiceResult<ProjectDto> ProjectFoundResult(Project project) => new()
+    private static ServiceResult<ProjectDto?> ProjectFoundResult(Project project) => new()
     {
         Data = ProjectDto.FromModel(project),
         Success = true,

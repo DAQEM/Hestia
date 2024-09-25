@@ -1,6 +1,6 @@
-using Hestia.Domain.Models.Users;
+using Hestia.Domain.Models.Auth;
 
-namespace Hestia.Application.Dtos.Users;
+namespace Hestia.Application.Dtos.Auth;
 
 public class OAuthStateDto
 {

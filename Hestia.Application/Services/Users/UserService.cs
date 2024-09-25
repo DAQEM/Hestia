@@ -1,11 +1,11 @@
 using Hestia.Application.Dtos.Users;
 using Hestia.Application.Result;
+using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Users;
-using Hestia.Domain.Repositories;
 using Hestia.Domain.Repositories.Users;
 using Hestia.Domain.Result;
 
-namespace Hestia.Application.Services;
+namespace Hestia.Application.Services.Users;
 
 public class UserService(IUserRepository userRepository)
 {

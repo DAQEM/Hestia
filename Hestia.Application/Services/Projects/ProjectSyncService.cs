@@ -3,7 +3,7 @@ using System.Net.Http.Json;
 using Hestia.Application.Dtos.Projects;
 using Hestia.Application.Dtos.Projects.External;
 
-namespace Hestia.Application.Services;
+namespace Hestia.Application.Services.Projects;
 
 public class ProjectSyncService(ProjectService projectService, HttpClient httpClient)
 {

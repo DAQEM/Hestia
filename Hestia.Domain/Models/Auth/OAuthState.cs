@@ -1,4 +1,4 @@
-namespace Hestia.Domain.Models.Users;
+namespace Hestia.Domain.Models.Auth;
 
 public class OAuthState : Model<int>
 {

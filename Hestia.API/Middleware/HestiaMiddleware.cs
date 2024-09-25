@@ -1,4 +1,5 @@
 using Hestia.Application.Services;
+using Hestia.Application.Services.Users;
 using Hestia.Infrastructure.Extensions;
 
 namespace Hestia.API.Middleware;

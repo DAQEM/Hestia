@@ -1,6 +1,8 @@
 using Hestia.API.Models.Responses.Auth;
 using Hestia.Application.Dtos.Users;
+using Hestia.Application.Models.Requests;
 using Hestia.Application.Services;
+using Hestia.Application.Services.Users;
 using Hestia.Domain.Result;
 using Hestia.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authentication;
@@ -54,11 +56,11 @@ public class UserController(ILogger<HestiaController> logger, UserService userSe
 
     [Authorize]
     [HttpPut]
-    public async Task<IActionResult> UpdateUser(UserUpdateRequestDto requestDto)
+    public async Task<IActionResult> UpdateUser(UpdateUserRequest request)
     {
         if (int.TryParse(User.GetId(), out int userId))
         {
-            IResult<UserDto?> result = await userService.UpdateNameAndBioAsync(userId, requestDto.Name, requestDto.Bio);
+            IResult<UserDto?> result = await userService.UpdateNameAndBioAsync(userId, request.Name, request.Bio);
             
             return HandleResult(result);
         }

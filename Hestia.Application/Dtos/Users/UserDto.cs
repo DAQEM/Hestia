@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Users;
 
 namespace Hestia.Application.Dtos.Users;

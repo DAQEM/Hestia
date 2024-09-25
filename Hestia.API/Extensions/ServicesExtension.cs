@@ -1,5 +1,8 @@
 ﻿using Hestia.Application.Services;
 using Hestia.Application.Services.Auth;
+using Hestia.Application.Services.Blogs;
+using Hestia.Application.Services.Projects;
+using Hestia.Application.Services.Users;
 
 namespace Hestia.API.Extensions;
 
@@ -14,5 +17,6 @@ public static class ServicesExtension
         services.AddScoped<OAuthStateService>();
         services.AddScoped<OAuthProviderService>();
         services.AddScoped<SessionService>();
+        services.AddScoped<BlogService>();
     }
 }

@@ -1,3 +1,4 @@
+using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Users;
 using Hestia.Domain.Repositories.Users;
 using Hestia.Infrastructure.Database;

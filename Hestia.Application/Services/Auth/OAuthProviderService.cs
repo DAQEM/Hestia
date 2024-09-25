@@ -2,6 +2,7 @@ using System.Net;
 using Hestia.Application.Models.Responses;
 using Hestia.Application.Options;
 using Hestia.Application.Result;
+using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Users;
 using Hestia.Domain.Result;
 using Microsoft.Extensions.Options;

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Reflection;
+using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Blogs;
 using Hestia.Domain.Models.Projects;
 using Hestia.Domain.Models.Users;
@@ -22,9 +23,9 @@ public class HestiaDbContext : DbContext
     public DbSet<ProjectCategory> ProjectCategories { get; set; } = null!;
     public DbSet<ProjectVersion> ProjectVersions { get; set; } = null!;
     
-    public DbSet<Blog> Posts { get; set; } = null!;
-    public DbSet<BlogCategory> PostCategories { get; set; } = null!;
-    public DbSet<BlogComment> PostComments { get; set; } = null!;
+    public DbSet<Blog> Blogs { get; set; } = null!;
+    public DbSet<BlogCategory> BlogCategories { get; set; } = null!;
+    public DbSet<BlogComment> BlogComments { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -124,9 +125,9 @@ public class HestiaDbContext : DbContext
         #region Blog Configuration
         
         builder.Entity<User>()
-            .HasMany(u => u.Posts)
+            .HasMany(u => u.Blogs)
             .WithMany(p => p.Users)
-            .UsingEntity(j => j.ToTable("UserPost"));
+            .UsingEntity(j => j.ToTable("UserBlog"));
 
         builder.Entity<User>()
             .HasMany(u => u.Comments)
@@ -137,7 +138,7 @@ public class HestiaDbContext : DbContext
         builder.Entity<Project>()
             .HasMany(p => p.Blogs)
             .WithMany(p => p.Projects)
-            .UsingEntity(j => j.ToTable("PostProject"));
+            .UsingEntity(j => j.ToTable("BlogProject"));
 
         builder.Entity<Blog>()
             .HasMany(p => p.Comments)
@@ -148,7 +149,7 @@ public class HestiaDbContext : DbContext
         builder.Entity<Blog>()
             .HasMany(p => p.Categories)
             .WithMany(c => c.Blogs)
-            .UsingEntity(j => j.ToTable("PostCategory"));
+            .UsingEntity(j => j.ToTable("BlogCategory"));
 
         builder.Entity<BlogComment>()
             .HasOne(c => c.Parent)

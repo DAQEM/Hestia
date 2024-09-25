@@ -5,6 +5,7 @@ using Hestia.Domain.Result;
 using Hestia.Infrastructure.Algorithms;
 using Hestia.Infrastructure.Database;
 using Hestia.Infrastructure.Exceptions;
+using Hestia.Infrastructure.Exceptions.Projects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
@@ -156,9 +157,9 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
         return entity;
     }
 
-    public Task<Project> UpdateAsync(int id, Project entity)
+    public async Task<Project> UpdateAsync(int id, Project entity)
     {
-        Project? existingProject = dbContext.Projects.Find(id);
+        Project? existingProject = await dbContext.Projects.FindAsync(id);
         
         if (existingProject is null)
         {
@@ -176,7 +177,7 @@ public class ProjectRepository(HestiaDbContext dbContext) : IProjectRepository
         
         dbContext.Projects.Update(existingProject);
         
-        return Task.FromResult(entity);
+        return entity;
     }
 
     public Task<bool> DeleteAsync(int id)

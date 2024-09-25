@@ -1,3 +1,4 @@
+using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Blogs;
 using Hestia.Domain.Models.Projects;
 
@@ -15,7 +16,7 @@ public class User : Model<int>
     
     public long? DiscordId { get; set; }
     
-    public List<Blog> Posts { get; set; } = null!;
+    public List<Blog> Blogs { get; set; } = null!;
     public List<BlogComment> Comments { get; set; } = null!;
     public List<Project> Projects { get; set; } = null!;
     public List<Session> Sessions { get; set; } = null!;

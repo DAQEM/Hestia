@@ -1,6 +1,6 @@
-namespace Hestia.Application.Dtos.Users;
+namespace Hestia.Application.Models.Requests;
 
-public class UserUpdateRequestDto
+public class UpdateUserRequest
 {
     public string Name { get; set; } = null!;
     public string Bio { get; set; } = null!;
