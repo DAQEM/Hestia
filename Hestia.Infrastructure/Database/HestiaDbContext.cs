@@ -3,6 +3,7 @@ using System.Reflection;
 using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Blogs;
 using Hestia.Domain.Models.Projects;
+using Hestia.Domain.Models.Servers;
 using Hestia.Domain.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
@@ -26,6 +27,9 @@ public class HestiaDbContext : DbContext
     public DbSet<Blog> Blogs { get; set; } = null!;
     public DbSet<BlogCategory> BlogCategories { get; set; } = null!;
     public DbSet<BlogComment> BlogComments { get; set; } = null!;
+    
+    public DbSet<Server> Servers { get; set; } = null!;
+    public DbSet<ServerCategory> ServerCategories { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -169,6 +173,37 @@ public class HestiaDbContext : DbContext
 
         builder.Entity<BlogCategory>()
             .HasIndex(c => c.Slug)
+            .IsUnique();
+        
+        #endregion
+        
+        #region Server Configuration
+        
+        builder.Entity<Server>()
+            .HasIndex(s => s.Slug)
+            .IsUnique();
+        
+        builder.Entity<Server>()
+            .HasMany(s => s.Categories)
+            .WithMany(c => c.Servers)
+            .UsingEntity(j => j.ToTable("ServerCategory"));
+        
+        builder.Entity<ServerCategory>()
+            .HasIndex(c => c.Slug)
+            .IsUnique();
+        
+        builder.Entity<Server>()
+            .HasMany(s => s.Projects)
+            .WithMany(p => p.Servers)
+            .UsingEntity(j => j.ToTable("ServerProject"));
+        
+        builder.Entity<Server>()
+            .HasMany(s => s.Users)
+            .WithMany(u => u.Servers)
+            .UsingEntity(j => j.ToTable("UserServer"));
+        
+        builder.Entity<Server>()
+            .HasIndex(s => s.Host)
             .IsUnique();
         
         #endregion

@@ -1,10 +1,10 @@
-namespace Hestia.Domain.Models.Projects;
+namespace Hestia.Domain.Models.Servers;
 
-public class ProjectCategory : Model<int>
+public class ServerCategory
 {
     public string Name { get; set; } = null!;
     public string Slug { get; set; } = null!;
     public string Content { get; set; } = null!;
     
-    public List<Project> Projects { get; set; } = [];
+    public List<Server> Servers { get; set; } = [];
 }

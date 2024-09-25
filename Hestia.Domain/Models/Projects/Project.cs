@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using Hestia.Domain.Models.Blogs;
+using Hestia.Domain.Models.Servers;
 using Hestia.Domain.Models.Users;
 
 namespace Hestia.Domain.Models.Projects;
@@ -34,4 +35,5 @@ public class Project : Model<int>
     public List<ProjectCategory> Categories { get; set; } = [];
     public List<User> Users { get; set; } = [];
     public List<ProjectVersion> Versions { get; set; } = [];
+    public List<Server> Servers { get; set; } = [];
 }
