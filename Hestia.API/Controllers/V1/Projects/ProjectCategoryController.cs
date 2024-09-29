@@ -1,5 +1,4 @@
 using Hestia.Application.Dtos.Projects;
-using Hestia.Application.Services;
 using Hestia.Application.Services.Projects;
 using Hestia.Domain.Result;
 using Microsoft.AspNetCore.Mvc;

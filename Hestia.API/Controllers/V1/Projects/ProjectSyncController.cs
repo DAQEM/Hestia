@@ -1,5 +1,4 @@
 using Hestia.Application.Options;
-using Hestia.Application.Services;
 using Hestia.Application.Services.Projects;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;

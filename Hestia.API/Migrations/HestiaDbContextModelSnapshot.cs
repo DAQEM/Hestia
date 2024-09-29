@@ -34,7 +34,7 @@ namespace Hestia.API.Migrations
 
                     b.HasIndex("CategoriesId");
 
-                    b.ToTable("PostCategory", (string)null);
+                    b.ToTable("BlogCategory", (string)null);
                 });
 
             modelBuilder.Entity("BlogProject", b =>
@@ -49,22 +49,112 @@ namespace Hestia.API.Migrations
 
                     b.HasIndex("ProjectsId");
 
-                    b.ToTable("PostProject", (string)null);
+                    b.ToTable("BlogProject", (string)null);
                 });
 
             modelBuilder.Entity("BlogUser", b =>
                 {
-                    b.Property<int>("PostsId")
+                    b.Property<int>("BlogsId")
                         .HasColumnType("integer");
 
                     b.Property<int>("UsersId")
                         .HasColumnType("integer");
 
-                    b.HasKey("PostsId", "UsersId");
+                    b.HasKey("BlogsId", "UsersId");
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("UserPost", (string)null);
+                    b.ToTable("UserBlog", (string)null);
+                });
+
+            modelBuilder.Entity("Hestia.Domain.Models.Auth.OAuthState", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("Provider")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReturnUri")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("State")
+                        .IsUnique();
+
+                    b.ToTable("OAuthStates");
+                });
+
+            modelBuilder.Entity("Hestia.Domain.Models.Auth.Session", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Browser")
+                        .HasColumnType("text");
+
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IpAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OperatingSystem")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RefreshExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserAgent")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("Hestia.Domain.Models.Blogs.Blog", b =>
@@ -85,6 +175,9 @@ namespace Hestia.API.Migrations
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("boolean");
@@ -112,7 +205,7 @@ namespace Hestia.API.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("Posts");
+                    b.ToTable("Blogs");
                 });
 
             modelBuilder.Entity("Hestia.Domain.Models.Blogs.BlogCategory", b =>
@@ -148,7 +241,7 @@ namespace Hestia.API.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("PostCategories");
+                    b.ToTable("BlogCategories");
                 });
 
             modelBuilder.Entity("Hestia.Domain.Models.Blogs.BlogComment", b =>
@@ -186,7 +279,7 @@ namespace Hestia.API.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PostComments");
+                    b.ToTable("BlogComments");
                 });
 
             modelBuilder.Entity("Hestia.Domain.Models.Projects.Project", b =>
@@ -306,10 +399,6 @@ namespace Hestia.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("MetaTitle")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -347,94 +436,78 @@ namespace Hestia.API.Migrations
                     b.ToTable("ProjectVersions");
                 });
 
-            modelBuilder.Entity("Hestia.Domain.Models.Users.OAuthState", b =>
+            modelBuilder.Entity("Hestia.Domain.Models.Servers.Server", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Provider")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ReturnUri")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("State")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("State")
-                        .IsUnique();
-
-                    b.ToTable("OAuthStates");
-                });
-
-            modelBuilder.Entity("Hestia.Domain.Models.Users.Session", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Browser")
-                        .HasColumnType("text");
-
-                    b.Property<string>("City")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("IpAddress")
+                    b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
 
-                    b.Property<DateTime>("LastUsedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("OperatingSystem")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("RefreshExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Token")
+                    b.Property<string>("Host")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
-                    b.Property<string>("UserAgent")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<bool>("IsFeatured")
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("UserId")
+                    b.Property<bool>("IsOnline")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsWhitelisted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("MaxPlayers")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<int>("OnlinePlayers")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Port")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("RamMb")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Version")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Token")
+                    b.HasIndex("Host")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Servers");
                 });
 
             modelBuilder.Entity("Hestia.Domain.Models.Users.User", b =>
@@ -482,6 +555,56 @@ namespace Hestia.API.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("Hestia.Domain.Models.Wikis.Wiki", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ParentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Wikis");
+                });
+
             modelBuilder.Entity("ProjectProjectCategory", b =>
                 {
                     b.Property<int>("CategoriesId")
@@ -512,6 +635,21 @@ namespace Hestia.API.Migrations
                     b.ToTable("ProjectVersion", (string)null);
                 });
 
+            modelBuilder.Entity("ProjectServer", b =>
+                {
+                    b.Property<int>("ProjectsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ServersId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ProjectsId", "ServersId");
+
+                    b.HasIndex("ServersId");
+
+                    b.ToTable("ServerProject", (string)null);
+                });
+
             modelBuilder.Entity("ProjectUser", b =>
                 {
                     b.Property<int>("ProjectsId")
@@ -525,6 +663,36 @@ namespace Hestia.API.Migrations
                     b.HasIndex("UsersId");
 
                     b.ToTable("ProjectUser");
+                });
+
+            modelBuilder.Entity("ServerUser", b =>
+                {
+                    b.Property<int>("ServersId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UsersId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ServersId", "UsersId");
+
+                    b.HasIndex("UsersId");
+
+                    b.ToTable("UserServer", (string)null);
+                });
+
+            modelBuilder.Entity("UserWiki", b =>
+                {
+                    b.Property<int>("AuthorsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("WikisId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AuthorsId", "WikisId");
+
+                    b.HasIndex("WikisId");
+
+                    b.ToTable("WikiAuthor", (string)null);
                 });
 
             modelBuilder.Entity("BlogBlogCategory", b =>
@@ -561,7 +729,7 @@ namespace Hestia.API.Migrations
                 {
                     b.HasOne("Hestia.Domain.Models.Blogs.Blog", null)
                         .WithMany()
-                        .HasForeignKey("PostsId")
+                        .HasForeignKey("BlogsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -570,6 +738,17 @@ namespace Hestia.API.Migrations
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Hestia.Domain.Models.Auth.Session", b =>
+                {
+                    b.HasOne("Hestia.Domain.Models.Users.User", "User")
+                        .WithMany("Sessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Hestia.Domain.Models.Blogs.BlogCategory", b =>
@@ -609,15 +788,23 @@ namespace Hestia.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Hestia.Domain.Models.Users.Session", b =>
+            modelBuilder.Entity("Hestia.Domain.Models.Wikis.Wiki", b =>
                 {
-                    b.HasOne("Hestia.Domain.Models.Users.User", "User")
-                        .WithMany("Sessions")
-                        .HasForeignKey("UserId")
+                    b.HasOne("Hestia.Domain.Models.Wikis.Wiki", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.HasOne("Hestia.Domain.Models.Projects.Project", "Project")
+                        .WithMany("Wikis")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Parent");
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("ProjectProjectCategory", b =>
@@ -650,6 +837,21 @@ namespace Hestia.API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ProjectServer", b =>
+                {
+                    b.HasOne("Hestia.Domain.Models.Projects.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hestia.Domain.Models.Servers.Server", null)
+                        .WithMany()
+                        .HasForeignKey("ServersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ProjectUser", b =>
                 {
                     b.HasOne("Hestia.Domain.Models.Projects.Project", null)
@@ -661,6 +863,36 @@ namespace Hestia.API.Migrations
                     b.HasOne("Hestia.Domain.Models.Users.User", null)
                         .WithMany()
                         .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ServerUser", b =>
+                {
+                    b.HasOne("Hestia.Domain.Models.Servers.Server", null)
+                        .WithMany()
+                        .HasForeignKey("ServersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hestia.Domain.Models.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("UserWiki", b =>
+                {
+                    b.HasOne("Hestia.Domain.Models.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("AuthorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Hestia.Domain.Models.Wikis.Wiki", null)
+                        .WithMany()
+                        .HasForeignKey("WikisId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -680,11 +912,21 @@ namespace Hestia.API.Migrations
                     b.Navigation("Children");
                 });
 
+            modelBuilder.Entity("Hestia.Domain.Models.Projects.Project", b =>
+                {
+                    b.Navigation("Wikis");
+                });
+
             modelBuilder.Entity("Hestia.Domain.Models.Users.User", b =>
                 {
                     b.Navigation("Comments");
 
                     b.Navigation("Sessions");
+                });
+
+            modelBuilder.Entity("Hestia.Domain.Models.Wikis.Wiki", b =>
+                {
+                    b.Navigation("Children");
                 });
 #pragma warning restore 612, 618
         }

@@ -6,11 +6,9 @@ using Hestia.Application.Dtos.Auth;
 using Hestia.Application.Dtos.Users;
 using Hestia.Application.Models.Responses;
 using Hestia.Application.Options;
-using Hestia.Application.Services;
 using Hestia.Application.Services.Auth;
 using Hestia.Application.Services.Users;
 using Hestia.Domain.Models.Auth;
-using Hestia.Domain.Models.Users;
 using Hestia.Domain.Result;
 using Hestia.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -212,6 +210,7 @@ public class AuthController(
     }
     
     [HttpGet("refresh")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(typeof(SessionTokenResponse), StatusCodes.Status200OK)]
     [SwaggerOperation(

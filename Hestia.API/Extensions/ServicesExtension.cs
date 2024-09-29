@@ -1,5 +1,4 @@
-﻿using Hestia.Application.Services;
-using Hestia.Application.Services.Auth;
+﻿using Hestia.Application.Services.Auth;
 using Hestia.Application.Services.Blogs;
 using Hestia.Application.Services.Projects;
 using Hestia.Application.Services.Users;

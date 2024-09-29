@@ -1,5 +1,4 @@
 using Hestia.Application.Options;
-using Hestia.Infrastructure.Options;
 
 namespace Hestia.API.Extensions;
 

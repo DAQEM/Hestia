@@ -24,7 +24,7 @@ public class Server : Model<int>
     [StringLength(1024)]
     public string Description { get; set; } = null!;
     [Required]
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     [Required]
     public bool IsPublished { get; set; }
@@ -40,7 +40,6 @@ public class Server : Model<int>
     public int OnlinePlayers { get; set; }
     public int? RamMb { get; set; }
     
-    public List<ServerCategory> Categories { get; set; } = [];
     public List<Project> Projects { get; set; } = [];
     public List<User> Users { get; set; } = [];
     

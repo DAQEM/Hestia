@@ -2,6 +2,7 @@
 using Hestia.Domain.Models.Blogs;
 using Hestia.Domain.Models.Servers;
 using Hestia.Domain.Models.Users;
+using Hestia.Domain.Models.Wikis;
 
 namespace Hestia.Domain.Models.Projects;
 
@@ -36,4 +37,5 @@ public class Project : Model<int>
     public List<User> Users { get; set; } = [];
     public List<ProjectVersion> Versions { get; set; } = [];
     public List<Server> Servers { get; set; } = [];
+    public List<Wiki> Wikis { get; set; } = [];
 }

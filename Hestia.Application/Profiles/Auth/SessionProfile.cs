@@ -1,10 +1,8 @@
 using AutoMapper;
 using Hestia.Application.Dtos.Auth;
-using Hestia.Application.Dtos.Users;
 using Hestia.Domain.Models.Auth;
-using Hestia.Domain.Models.Users;
 
-namespace Hestia.Application.Profiles.Users;
+namespace Hestia.Application.Profiles.Auth;
 
 public class SessionProfile : Profile
 {

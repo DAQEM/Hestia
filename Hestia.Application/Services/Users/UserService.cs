@@ -1,3 +1,4 @@
+using AutoMapper;
 using Hestia.Application.Dtos.Users;
 using Hestia.Application.Result;
 using Hestia.Domain.Models.Auth;
@@ -7,7 +8,7 @@ using Hestia.Domain.Result;
 
 namespace Hestia.Application.Services.Users;
 
-public class UserService(IUserRepository userRepository)
+public class UserService(IUserRepository userRepository, IMapper mapper)
 {
     public async Task<IResult<UserDto?>> GetAsync(int id)
     {
@@ -25,7 +26,7 @@ public class UserService(IUserRepository userRepository)
         
         return new ServiceResult<UserDto?>
         {
-            Data = UserDto.FromModel(user),
+            Data = mapper.Map<UserDto>(user),
             Success = true,
             Message = "User found"
         };
@@ -47,7 +48,7 @@ public class UserService(IUserRepository userRepository)
         
         return new ServiceResult<UserDto?>
         {
-            Data = UserDto.FromModel(user),
+            Data = mapper.Map<UserDto>(user),
             Success = true,
             Message = "User found"
         };
@@ -69,7 +70,7 @@ public class UserService(IUserRepository userRepository)
         
         return new ServiceResult<UserDto?>
         {
-            Data = UserDto.FromModel(user),
+            Data = mapper.Map<UserDto>(user),
             Success = true,
             Message = "User found"
         };
@@ -81,7 +82,7 @@ public class UserService(IUserRepository userRepository)
         
         return new ServiceResult<IEnumerable<UserDto>>
         {
-            Data = users.Select(UserDto.FromModel),
+            Data = users.Select(mapper.Map<UserDto>),
             Success = true,
             Message = "Users found"
         };
@@ -94,13 +95,13 @@ public class UserService(IUserRepository userRepository)
             user.Joined = DateTime.UtcNow;
             user.LastActive = DateTime.UtcNow;
             
-            User addedUser = await userRepository.AddAsync(user.ToModel());
+            User addedUser = await userRepository.AddAsync(mapper.Map<User>(user));
 
             await userRepository.SaveChangesAsync();
             
             return new ServiceResult<UserDto>
             {
-                Data = UserDto.FromModel(addedUser),
+                Data = mapper.Map<UserDto>(addedUser),
                 Success = true,
                 Message = "User added successfully"
             };
@@ -135,13 +136,13 @@ public class UserService(IUserRepository userRepository)
             existingUser.Name = user.Name;
             existingUser.Email = user.Email;
             existingUser.Image = user.Image;
-            existingUser.Role = (Role) user.Role;
+            existingUser.Role = user.Role;
 
             await userRepository.SaveChangesAsync();
             
             return new ServiceResult<UserDto>
             {
-                Data = UserDto.FromModel(existingUser),
+                Data = mapper.Map<UserDto>(existingUser),
                 Success = true,
                 Message = "User updated successfully"
             };
@@ -179,7 +180,7 @@ public class UserService(IUserRepository userRepository)
             
             return new ServiceResult<UserDto>
             {
-                Data = UserDto.FromModel(existingUser),
+                Data = mapper.Map<UserDto>(existingUser),
                 Success = true,
                 Message = "User deleted successfully"
             };
@@ -284,7 +285,7 @@ public class UserService(IUserRepository userRepository)
             
             return new ServiceResult<UserDto?>
             {
-                Data = UserDto.FromModel(existingUser),
+                Data = mapper.Map<UserDto>(existingUser),
                 Success = true,
                 Message = "User updated successfully"
             };

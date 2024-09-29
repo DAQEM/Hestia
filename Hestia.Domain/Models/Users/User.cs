@@ -2,6 +2,7 @@ using Hestia.Domain.Models.Auth;
 using Hestia.Domain.Models.Blogs;
 using Hestia.Domain.Models.Projects;
 using Hestia.Domain.Models.Servers;
+using Hestia.Domain.Models.Wikis;
 
 namespace Hestia.Domain.Models.Users;
 
@@ -22,4 +23,5 @@ public class User : Model<int>
     public List<Project> Projects { get; set; } = [];
     public List<Session> Sessions { get; set; } = [];
     public List<Server> Servers { get; set; } = [];
+    public List<Wiki> Wikis { get; set; } = [];
 }

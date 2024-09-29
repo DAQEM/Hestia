@@ -1,3 +1,4 @@
+using AutoMapper;
 using Hestia.Application.Dtos.Projects;
 using Hestia.Application.Result;
 using Hestia.Domain.Models.Projects;
@@ -6,7 +7,7 @@ using Hestia.Domain.Result;
 
 namespace Hestia.Application.Services.Projects;
 
-public class ProjectCategoryService(IProjectCategoryRepository projectCategoryRepository)
+public class ProjectCategoryService(IProjectCategoryRepository projectCategoryRepository, IMapper mapper)
 {
     public async Task<IResult<List<ProjectCategoryDto>>> GetAllAsync()
     {
@@ -14,7 +15,7 @@ public class ProjectCategoryService(IProjectCategoryRepository projectCategoryRe
         
         return new ServiceResult<List<ProjectCategoryDto>>
         {
-            Data = projectCategories.Select(ProjectCategoryDto.FromModel).ToList(),
+            Data = projectCategories.Select(mapper.Map<ProjectCategoryDto>).ToList(),
             Success = true,
             Message = "Project categories found"
         };

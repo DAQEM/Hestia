@@ -25,10 +25,16 @@ public class HestiaAuthenticationHandler(
         
         if (token is null || string.IsNullOrEmpty(token) || !token.StartsWith("Bearer "))
         {
-            return AuthenticateResult.NoResult();
+            Context.Request.Cookies.TryGetValue("auth-token", out token);
+        } else
+        {
+            token = token["Bearer ".Length..];
         }
         
-        token = token["Bearer ".Length..];
+        if (token is null || string.IsNullOrEmpty(token))
+        {
+            return AuthenticateResult.NoResult();
+        }
         
         if (string.IsNullOrEmpty(token) || token.Split('_').Length != 2)
         {

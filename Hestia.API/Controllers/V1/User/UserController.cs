@@ -1,11 +1,9 @@
 using Hestia.API.Models.Responses.Auth;
 using Hestia.Application.Dtos.Users;
 using Hestia.Application.Models.Requests;
-using Hestia.Application.Services;
 using Hestia.Application.Services.Users;
 using Hestia.Domain.Result;
 using Hestia.Infrastructure.Extensions;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;

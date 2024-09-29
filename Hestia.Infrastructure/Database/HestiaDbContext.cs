@@ -5,6 +5,7 @@ using Hestia.Domain.Models.Blogs;
 using Hestia.Domain.Models.Projects;
 using Hestia.Domain.Models.Servers;
 using Hestia.Domain.Models.Users;
+using Hestia.Domain.Models.Wikis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -29,7 +30,8 @@ public class HestiaDbContext : DbContext
     public DbSet<BlogComment> BlogComments { get; set; } = null!;
     
     public DbSet<Server> Servers { get; set; } = null!;
-    public DbSet<ServerCategory> ServerCategories { get; set; } = null!;
+    
+    public DbSet<Wiki> Wikis { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -184,15 +186,6 @@ public class HestiaDbContext : DbContext
             .IsUnique();
         
         builder.Entity<Server>()
-            .HasMany(s => s.Categories)
-            .WithMany(c => c.Servers)
-            .UsingEntity(j => j.ToTable("ServerCategory"));
-        
-        builder.Entity<ServerCategory>()
-            .HasIndex(c => c.Slug)
-            .IsUnique();
-        
-        builder.Entity<Server>()
             .HasMany(s => s.Projects)
             .WithMany(p => p.Servers)
             .UsingEntity(j => j.ToTable("ServerProject"));
@@ -205,6 +198,37 @@ public class HestiaDbContext : DbContext
         builder.Entity<Server>()
             .HasIndex(s => s.Host)
             .IsUnique();
+        
+        #endregion
+        
+        #region Wiki Configuration
+        
+        builder.Entity<Wiki>()
+            .HasOne(w => w.Parent)
+            .WithMany(w => w.Children)
+            .HasForeignKey(w => w.ParentId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<Wiki>()
+            .HasOne(w => w.Project)
+            .WithMany(p => p.Wikis)
+            .HasForeignKey(w => w.ProjectId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        builder.Entity<Wiki>()
+            .HasMany(w => w.Authors)
+            .WithMany(u => u.Wikis)
+            .UsingEntity(j => j.ToTable("WikiAuthor"));
+        
+        builder.Entity<Wiki>()
+            .HasIndex(w => w.Slug)
+            .IsUnique();
+
+        builder.Entity<Wiki>()
+            .HasIndex(w => w.ProjectId);
+        
+        builder.Entity<Wiki>()
+            .HasIndex(w => w.ParentId);
         
         #endregion
     }

@@ -1,4 +1,5 @@
-﻿using Hestia.Application.Dtos.Projects;
+﻿using AutoMapper;
+using Hestia.Application.Dtos.Projects;
 using Hestia.Application.Result;
 using Hestia.Domain.Models.Projects;
 using Hestia.Domain.Repositories.Projects;
@@ -6,7 +7,7 @@ using Hestia.Domain.Result;
 
 namespace Hestia.Application.Services.Projects;
 
-public class ProjectService(IProjectRepository projectRepository)
+public class ProjectService(IProjectRepository projectRepository, IMapper mapper)
 {
     public async Task<PagedResult<List<ProjectDto>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string[]? loaders, string[]? types, ProjectOrder? order, string? user)
     {
@@ -14,7 +15,7 @@ public class ProjectService(IProjectRepository projectRepository)
         
         return new PagedResult<List<ProjectDto>>
         {
-            Data = pagedResult.Data?.Select(ProjectDto.FromModel).ToList() ?? [],
+            Data = pagedResult.Data?.Select(mapper.Map<ProjectDto>).ToList() ?? [],
             Success = true,
             Message = "Projects found",
             Page = page,
@@ -65,7 +66,7 @@ public class ProjectService(IProjectRepository projectRepository)
         
         return new ServiceResult<IEnumerable<ProjectDto>>
         {
-            Data = projects.Select(ProjectDto.FromModel),
+            Data = projects.Select(mapper.Map<ProjectDto>),
             Success = true,
             Message = "Project found"
         };
@@ -73,13 +74,13 @@ public class ProjectService(IProjectRepository projectRepository)
 
     public async Task<ServiceResult<ProjectDto>> AddAsync(ProjectDto project)
     {
-        Project addedProject = await projectRepository.AddAsync(project.ToModel());
+        Project addedProject = await projectRepository.AddAsync(mapper.Map<Project>(project));
 
         await projectRepository.SaveChangesAsync();
         
         return new ServiceResult<ProjectDto>
         {
-            Data = ProjectDto.FromModel(addedProject),
+            Data = mapper.Map<ProjectDto>(addedProject),
             Success = true,
             Message = "Project added successfully"
         };
@@ -87,13 +88,13 @@ public class ProjectService(IProjectRepository projectRepository)
 
     public async Task<ServiceResult<ProjectDto>> UpdateAsync(int id, ProjectDto newProject)
     {
-        Project updatedProject = await projectRepository.UpdateAsync(id, newProject.ToModel());
+        Project updatedProject = await projectRepository.UpdateAsync(id, mapper.Map<Project>(newProject));
 
         await projectRepository.SaveChangesAsync();
         
         return new ServiceResult<ProjectDto>
         {
-            Data = ProjectDto.FromModel(updatedProject),
+            Data = mapper.Map<ProjectDto>(updatedProject),
             Success = true,
             Message = "Project updated successfully"
         };
@@ -130,9 +131,9 @@ public class ProjectService(IProjectRepository projectRepository)
         Message = "Project not found"
     };
     
-    private static ServiceResult<ProjectDto?> ProjectFoundResult(Project project) => new()
+    private ServiceResult<ProjectDto?> ProjectFoundResult(Project project) => new()
     {
-        Data = ProjectDto.FromModel(project),
+        Data = mapper.Map<ProjectDto>(project),
         Success = true,
         Message = "Project found"
     };

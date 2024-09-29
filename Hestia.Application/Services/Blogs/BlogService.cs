@@ -1,9 +1,7 @@
 using AutoMapper;
 using Hestia.Application.Dtos.Blogs;
-using Hestia.Application.Dtos.Projects;
 using Hestia.Application.Result;
 using Hestia.Domain.Models.Blogs;
-using Hestia.Domain.Models.Projects;
 using Hestia.Domain.Repositories.Blogs;
 using Hestia.Domain.Result;
 

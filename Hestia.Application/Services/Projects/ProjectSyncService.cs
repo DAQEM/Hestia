@@ -43,7 +43,7 @@ public class ProjectSyncService(ProjectService projectService, HttpClient httpCl
             ModrinthUrl = "https://modrinth.com/" + modrinthProject.ProjectType + "/" + modrinthProject.Slug,
             ModrinthDownloads = modrinthProject.Downloads,
             Loaders = modrinthProject.Loaders,
-            SyncedAt = DateTime.Now,
+            SyncedAt = DateTime.UtcNow,
             Type = modrinthProject.ProjectType
         };
 
@@ -61,7 +61,7 @@ public class ProjectSyncService(ProjectService projectService, HttpClient httpCl
         }
         else
         {
-            project.CreatedAt = DateTime.Now;
+            project.CreatedAt = DateTime.UtcNow;
             project.IsFeatured = false;
             project.IsPublished = false;
             project.ShouldSync = true;
@@ -98,7 +98,7 @@ public class ProjectSyncService(ProjectService projectService, HttpClient httpCl
             CurseForgeId = curseForgeProject.Id.ToString(),
             CurseForgeUrl = curseForgeProject.Links.WebsiteUrl,
             CurseForgeDownloads = curseForgeProject.DownloadCount,
-            SyncedAt = DateTime.Now
+            SyncedAt = DateTime.UtcNow
         };
         
         ProjectDto? savedProject = (await projectService.GetByCurseForgeIdAsync(curseForgeProject.Id.ToString())).Data;
@@ -108,7 +108,7 @@ public class ProjectSyncService(ProjectService projectService, HttpClient httpCl
         savedProject.CurseForgeId = curseForgeProject.Id.ToString();
         savedProject.CurseForgeUrl = curseForgeProject.Links.WebsiteUrl;
         savedProject.CurseForgeDownloads = curseForgeProject.DownloadCount;
-        savedProject.SyncedAt = DateTime.Now;
+        savedProject.SyncedAt = DateTime.UtcNow;
             
         await projectService.UpdateAsync(savedProject.Id, savedProject);
         

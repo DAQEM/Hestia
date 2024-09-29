@@ -4,7 +4,6 @@ using Hestia.Domain.Repositories.Projects;
 using Hestia.Domain.Result;
 using Hestia.Infrastructure.Algorithms;
 using Hestia.Infrastructure.Database;
-using Hestia.Infrastructure.Exceptions;
 using Hestia.Infrastructure.Exceptions.Projects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;

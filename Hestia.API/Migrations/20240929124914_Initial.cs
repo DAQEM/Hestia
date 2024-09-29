@@ -7,11 +7,56 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Hestia.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSetup : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "BlogCategories",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ParentId = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Slug = table.Column<string>(type: "text", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BlogCategories", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BlogCategories_BlogCategories_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "BlogCategories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Blogs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Slug = table.Column<string>(type: "text", nullable: false),
+                    Summary = table.Column<string>(type: "text", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    ImageUrl = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    PublishedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Blogs", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "OAuthStates",
                 columns: table => new
@@ -30,50 +75,6 @@ namespace Hestia.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostCategories",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ParentId = table.Column<int>(type: "integer", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: false),
-                    ImageUrl = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PostCategories", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PostCategories_PostCategories_ParentId",
-                        column: x => x.ParentId,
-                        principalTable: "PostCategories",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Posts",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false),
-                    Summary = table.Column<string>(type: "text", nullable: false),
-                    Content = table.Column<string>(type: "text", nullable: false),
-                    ImageUrl = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    PublishedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IsPublished = table.Column<bool>(type: "boolean", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Posts", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProjectCategories",
                 columns: table => new
                 {
@@ -81,7 +82,6 @@ namespace Hestia.API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Slug = table.Column<string>(type: "text", nullable: false),
-                    MetaTitle = table.Column<string>(type: "text", nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -137,6 +137,33 @@ namespace Hestia.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Servers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Host = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Port = table.Column<int>(type: "integer", nullable: false),
+                    Version = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
+                    Description = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false),
+                    IsWhitelisted = table.Column<bool>(type: "boolean", nullable: false),
+                    IsOnline = table.Column<bool>(type: "boolean", nullable: false),
+                    MaxPlayers = table.Column<int>(type: "integer", nullable: false),
+                    OnlinePlayers = table.Column<int>(type: "integer", nullable: false),
+                    RamMb = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Servers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Users",
                 columns: table => new
                 {
@@ -157,7 +184,7 @@ namespace Hestia.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostCategory",
+                name: "BlogCategory",
                 columns: table => new
                 {
                     BlogsId = table.Column<int>(type: "integer", nullable: false),
@@ -165,23 +192,23 @@ namespace Hestia.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostCategory", x => new { x.BlogsId, x.CategoriesId });
+                    table.PrimaryKey("PK_BlogCategory", x => new { x.BlogsId, x.CategoriesId });
                     table.ForeignKey(
-                        name: "FK_PostCategory_PostCategories_CategoriesId",
+                        name: "FK_BlogCategory_BlogCategories_CategoriesId",
                         column: x => x.CategoriesId,
-                        principalTable: "PostCategories",
+                        principalTable: "BlogCategories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PostCategory_Posts_BlogsId",
+                        name: "FK_BlogCategory_Blogs_BlogsId",
                         column: x => x.BlogsId,
-                        principalTable: "Posts",
+                        principalTable: "Blogs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostProject",
+                name: "BlogProject",
                 columns: table => new
                 {
                     BlogsId = table.Column<int>(type: "integer", nullable: false),
@@ -189,15 +216,15 @@ namespace Hestia.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostProject", x => new { x.BlogsId, x.ProjectsId });
+                    table.PrimaryKey("PK_BlogProject", x => new { x.BlogsId, x.ProjectsId });
                     table.ForeignKey(
-                        name: "FK_PostProject_Posts_BlogsId",
+                        name: "FK_BlogProject_Blogs_BlogsId",
                         column: x => x.BlogsId,
-                        principalTable: "Posts",
+                        principalTable: "Blogs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PostProject_Projects_ProjectsId",
+                        name: "FK_BlogProject_Projects_ProjectsId",
                         column: x => x.ProjectsId,
                         principalTable: "Projects",
                         principalColumn: "Id",
@@ -253,7 +280,64 @@ namespace Hestia.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PostComments",
+                name: "Wikis",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ParentId = table.Column<int>(type: "integer", nullable: false),
+                    ProjectId = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Slug = table.Column<string>(type: "text", nullable: false),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    PublishedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Wikis", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Wikis_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Wikis_Wikis_ParentId",
+                        column: x => x.ParentId,
+                        principalTable: "Wikis",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServerProject",
+                columns: table => new
+                {
+                    ProjectsId = table.Column<int>(type: "integer", nullable: false),
+                    ServersId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServerProject", x => new { x.ProjectsId, x.ServersId });
+                    table.ForeignKey(
+                        name: "FK_ServerProject_Projects_ProjectsId",
+                        column: x => x.ProjectsId,
+                        principalTable: "Projects",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ServerProject_Servers_ServersId",
+                        column: x => x.ServersId,
+                        principalTable: "Servers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BlogComments",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -267,21 +351,21 @@ namespace Hestia.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostComments", x => x.Id);
+                    table.PrimaryKey("PK_BlogComments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PostComments_PostComments_ParentId",
+                        name: "FK_BlogComments_BlogComments_ParentId",
                         column: x => x.ParentId,
-                        principalTable: "PostComments",
+                        principalTable: "BlogComments",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PostComments_Posts_BlogId",
+                        name: "FK_BlogComments_Blogs_BlogId",
                         column: x => x.BlogId,
-                        principalTable: "Posts",
+                        principalTable: "Blogs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_PostComments_Users_UserId",
+                        name: "FK_BlogComments_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -343,75 +427,123 @@ namespace Hestia.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserPost",
+                name: "UserBlog",
                 columns: table => new
                 {
-                    PostsId = table.Column<int>(type: "integer", nullable: false),
+                    BlogsId = table.Column<int>(type: "integer", nullable: false),
                     UsersId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserPost", x => new { x.PostsId, x.UsersId });
+                    table.PrimaryKey("PK_UserBlog", x => new { x.BlogsId, x.UsersId });
                     table.ForeignKey(
-                        name: "FK_UserPost_Posts_PostsId",
-                        column: x => x.PostsId,
-                        principalTable: "Posts",
+                        name: "FK_UserBlog_Blogs_BlogsId",
+                        column: x => x.BlogsId,
+                        principalTable: "Blogs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserPost_Users_UsersId",
+                        name: "FK_UserBlog_Users_UsersId",
                         column: x => x.UsersId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "UserServer",
+                columns: table => new
+                {
+                    ServersId = table.Column<int>(type: "integer", nullable: false),
+                    UsersId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserServer", x => new { x.ServersId, x.UsersId });
+                    table.ForeignKey(
+                        name: "FK_UserServer_Servers_ServersId",
+                        column: x => x.ServersId,
+                        principalTable: "Servers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserServer_Users_UsersId",
+                        column: x => x.UsersId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "WikiAuthor",
+                columns: table => new
+                {
+                    AuthorsId = table.Column<int>(type: "integer", nullable: false),
+                    WikisId = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_WikiAuthor", x => new { x.AuthorsId, x.WikisId });
+                    table.ForeignKey(
+                        name: "FK_WikiAuthor_Users_AuthorsId",
+                        column: x => x.AuthorsId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_WikiAuthor_Wikis_WikisId",
+                        column: x => x.WikisId,
+                        principalTable: "Wikis",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlogCategories_ParentId",
+                table: "BlogCategories",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlogCategories_Slug",
+                table: "BlogCategories",
+                column: "Slug",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlogCategory_CategoriesId",
+                table: "BlogCategory",
+                column: "CategoriesId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlogComments_BlogId",
+                table: "BlogComments",
+                column: "BlogId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlogComments_ParentId",
+                table: "BlogComments",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlogComments_UserId",
+                table: "BlogComments",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BlogProject_ProjectsId",
+                table: "BlogProject",
+                column: "ProjectsId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Blogs_Slug",
+                table: "Blogs",
+                column: "Slug",
+                unique: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_OAuthStates_State",
                 table: "OAuthStates",
                 column: "State",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostCategories_ParentId",
-                table: "PostCategories",
-                column: "ParentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostCategories_Slug",
-                table: "PostCategories",
-                column: "Slug",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostCategory_CategoriesId",
-                table: "PostCategory",
-                column: "CategoriesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostComments_BlogId",
-                table: "PostComments",
-                column: "BlogId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostComments_ParentId",
-                table: "PostComments",
-                column: "ParentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostComments_UserId",
-                table: "PostComments",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_PostProject_ProjectsId",
-                table: "PostProject",
-                column: "ProjectsId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Posts_Slug",
-                table: "Posts",
-                column: "Slug",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -472,6 +604,23 @@ namespace Hestia.API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_ServerProject_ServersId",
+                table: "ServerProject",
+                column: "ServersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Servers_Host",
+                table: "Servers",
+                column: "Host",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Servers_Slug",
+                table: "Servers",
+                column: "Slug",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Sessions_Token",
                 table: "Sessions",
                 column: "Token",
@@ -483,8 +632,13 @@ namespace Hestia.API.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserPost_UsersId",
-                table: "UserPost",
+                name: "IX_UserBlog_UsersId",
+                table: "UserBlog",
+                column: "UsersId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserServer_UsersId",
+                table: "UserServer",
                 column: "UsersId");
 
             migrationBuilder.CreateIndex(
@@ -498,22 +652,43 @@ namespace Hestia.API.Migrations
                 table: "Users",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WikiAuthor_WikisId",
+                table: "WikiAuthor",
+                column: "WikisId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wikis_ParentId",
+                table: "Wikis",
+                column: "ParentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wikis_ProjectId",
+                table: "Wikis",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Wikis_Slug",
+                table: "Wikis",
+                column: "Slug",
+                unique: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "BlogCategory");
+
+            migrationBuilder.DropTable(
+                name: "BlogComments");
+
+            migrationBuilder.DropTable(
+                name: "BlogProject");
+
+            migrationBuilder.DropTable(
                 name: "OAuthStates");
-
-            migrationBuilder.DropTable(
-                name: "PostCategory");
-
-            migrationBuilder.DropTable(
-                name: "PostComments");
-
-            migrationBuilder.DropTable(
-                name: "PostProject");
 
             migrationBuilder.DropTable(
                 name: "ProjectCategory");
@@ -525,13 +700,22 @@ namespace Hestia.API.Migrations
                 name: "ProjectVersion");
 
             migrationBuilder.DropTable(
+                name: "ServerProject");
+
+            migrationBuilder.DropTable(
                 name: "Sessions");
 
             migrationBuilder.DropTable(
-                name: "UserPost");
+                name: "UserBlog");
 
             migrationBuilder.DropTable(
-                name: "PostCategories");
+                name: "UserServer");
+
+            migrationBuilder.DropTable(
+                name: "WikiAuthor");
+
+            migrationBuilder.DropTable(
+                name: "BlogCategories");
 
             migrationBuilder.DropTable(
                 name: "ProjectCategories");
@@ -540,13 +724,19 @@ namespace Hestia.API.Migrations
                 name: "ProjectVersions");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "Blogs");
 
             migrationBuilder.DropTable(
-                name: "Posts");
+                name: "Servers");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Wikis");
+
+            migrationBuilder.DropTable(
+                name: "Projects");
         }
     }
 }

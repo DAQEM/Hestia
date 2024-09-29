@@ -1,5 +1,6 @@
 using System.Reflection;
 using Hestia.API.Extensions;
+using Hestia.Application.Profiles.Auth;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,7 @@ builder.Services.AddControllers().AddHestiaJson();
 builder.Services.AddHestiaOptions(builder.Configuration);
 builder.Services.AddHestiaDatabase(builder.Configuration);
 builder.Services.AddHestiaAuthentication(builder.Configuration);
-builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(Hestia.Application.Profiles.Users.SessionProfile)));
+builder.Services.AddAutoMapper(Assembly.GetAssembly(typeof(SessionProfile)));
 
 WebApplication app = builder.Build();
 
