@@ -1,10 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Hestia.Domain.Models.Projects;
 
 public class ProjectCategory : Model<int>
 {
-    public string Name { get; set; } = null!;
-    public string Slug { get; set; } = null!;
-    public string Content { get; set; } = null!;
+    [Required, StringLength(128)]
+    public string Name { get; set; }
     
-    public List<Project> Projects { get; set; } = [];
+    [Required, StringLength(128)]
+    public string Slug { get; set; }
+    
+    [Required]
+    public string Content { get; set; }
+    
+    
+    public List<Project>? Projects { get; set; }
 }

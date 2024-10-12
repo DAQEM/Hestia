@@ -41,12 +41,6 @@ public class UserRepository(HestiaDbContext dbContext) : IUserRepository
         return entity;
     }
 
-    public Task<User> UpdateAsync(int id, User entity)
-    {
-        dbContext.Users.Update(entity);
-        return Task.FromResult(entity);
-    }
-
     public async Task UpdateOAuthIdAsync(int userId, OAuthProvider provider, string oAuthUserId)
     {
         User? user = await GetAsync(userId);
@@ -65,8 +59,16 @@ public class UserRepository(HestiaDbContext dbContext) : IUserRepository
                 default:
                     throw new NotImplementedException();
             }
+        }
+    }
 
-            await UpdateAsync(userId, user);
+    public async Task UpdateLastActiveAsync(int userId, DateTime utcNow)
+    {
+        User? user = await GetAsync(userId);
+
+        if (user is not null)
+        {
+            user.LastActive = utcNow;
         }
     }
 

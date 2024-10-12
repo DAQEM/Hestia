@@ -11,5 +11,4 @@ public class BlogDto
     public DateTime? UpdatedAt { get; set; }
     public DateTime? PublishedAt { get; set; }
     public bool IsPublished { get; set; }
-    public bool IsFeatured { get; set; }
 }

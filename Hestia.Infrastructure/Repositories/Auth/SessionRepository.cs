@@ -13,6 +13,14 @@ public class SessionRepository(HestiaDbContext dbContext) : ISessionRepository
         return await dbContext.Sessions.FindAsync(id);
     }
 
+    public Task<List<Session>> GetAllByUserAsync(int userId)
+    {
+        return dbContext.Sessions
+            .AsNoTracking()
+            .Where(s => s.UserId == userId)
+            .ToListAsync();
+    }
+
     public async Task<Session?> GetByTokenAsync(string token, bool ignoreExpiration = false)
     {
         return await dbContext.Sessions
@@ -23,6 +31,7 @@ public class SessionRepository(HestiaDbContext dbContext) : ISessionRepository
     public Task<User?> GetUserByTokenAsync(string token, bool ignoreExpiration = false)
     {
         return dbContext.Sessions
+            .AsNoTracking()
             .Include(s => s.User)
             .Where(s => s.Token == token && (ignoreExpiration || s.ExpiresAt > DateTime.UtcNow))
             .Select(s => s.User)
@@ -40,12 +49,6 @@ public class SessionRepository(HestiaDbContext dbContext) : ISessionRepository
         return entity;
     }
 
-    public Task<Session> UpdateAsync(int id, Session entity)
-    {
-        dbContext.Sessions.Update(entity);
-        return Task.FromResult(entity);
-    }
-
     public async Task<bool> DeleteAsync(int id)
     {
         Session? session = await dbContext.Sessions.FindAsync(id);
@@ -60,6 +63,19 @@ public class SessionRepository(HestiaDbContext dbContext) : ISessionRepository
         if (session is null) return false;
         dbContext.Sessions.Remove(session);
         return true;
+    }
+
+    public async Task UpdateAsync(int sessionId, Session session)
+    {
+        Session? existing = await dbContext.Sessions.FindAsync(sessionId);
+
+        if (existing is not null)
+        {
+            existing.Token = session.Token;
+            existing.LastUsedAt = session.LastUsedAt;
+            existing.ExpiresAt = session.ExpiresAt;
+            existing.RefreshExpiresAt = session.RefreshExpiresAt;
+        }
     }
 
     public async Task SaveChangesAsync()

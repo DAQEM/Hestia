@@ -13,6 +13,7 @@
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="MyCSharp.HttpUserAgentParser.AspNetCore" Version="3.0.6" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
         <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.7.3" />
         <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.0" />
@@ -20,11 +21,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\Hestia.Infrastructure\Hestia.Infrastructure.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Migrations\" />
-      <Folder Include="Models\Requests\" />
     </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@ using Hestia.Domain.Models.Projects;
 
 namespace Hestia.Infrastructure.Algorithms;
 
-public class ProjectRelevanceCalculator
+public static class ProjectRelevanceCalculator
 {
     public static double CalculateRelevanceScore(Project project, string searchTerm)
         {
@@ -10,17 +10,15 @@ public class ProjectRelevanceCalculator
             double nameSimilarityScore = CalculateSimilarityScore(project.Name, searchTerm);
             double summarySimilarityScore = CalculateSimilarityScore(project.Summary, searchTerm);
             double descriptionSimilarityScore = CalculateSimilarityScore(project.Description, searchTerm);
-            double popularityScore = CalculatePopularityScore(project.ModrinthDownloads + project.CurseForgeDownloads);
+            double popularityScore = CalculatePopularityScore(project.ModrinthDownloads ?? 0 + project.CurseForgeDownloads ?? 0);
             double featureScore = project.IsFeatured ? 1 : 0;
-            double publishedScore = project.IsPublished ? 1 : 0;
 
             // You can adjust the weights of these factors based on their importance
             double relevanceScore = nameSimilarityScore * 0.6 +
                                     summarySimilarityScore * 0.4 +
                                     descriptionSimilarityScore * 0.3 +
                                     popularityScore * 0.2 +
-                                    featureScore * 0.1 +
-                                    publishedScore * 0.1;
+                                    featureScore * 0.1;
             
             return relevanceScore;
         }
@@ -28,14 +26,12 @@ public class ProjectRelevanceCalculator
         public static double CalculateRelevanceScoreWithoutSearchTerm(Project project)
         {
             // Simplified relevance calculation based on various factors
-            double popularityScore = CalculatePopularityScore(project.ModrinthDownloads + project.CurseForgeDownloads);
+            double popularityScore = CalculatePopularityScore(project.ModrinthDownloads ?? 0 + project.CurseForgeDownloads ?? 0);
             double featureScore = project.IsFeatured ? 1 : 0;
-            double publishedScore = project.IsPublished ? 1 : 0;
 
             // You can adjust the weights of these factors based on their importance
             double relevanceScore = popularityScore * 0.6 +
-                                    featureScore * 0.2 +
-                                    publishedScore * 0.2;
+                                    featureScore * 0.2;
             
             return relevanceScore;
         }

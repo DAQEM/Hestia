@@ -1,5 +1,6 @@
 using System.Reflection;
 using Hestia.Domain.Models.Blogs;
+using Hestia.Domain.Models.Users;
 using Hestia.Domain.Repositories.Blogs;
 using Hestia.Domain.Result;
 using Hestia.Infrastructure.Database;
@@ -11,17 +12,14 @@ namespace Hestia.Infrastructure.Repositories.Blogs;
 
 public class BlogRepository(HestiaDbContext dbContext) : IBlogRepository
 {
-    public async Task<PagedResult<List<Blog>>> SearchAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string? user)
+    public async Task<PagedResult<List<Blog>>> SearchAsync(string? query, int page, int pageSize, string[]? categories, string? user, bool creator = false)
     {
         IQueryable<Blog> blogsQuery = dbContext.Blogs
             .Include(b => b.Categories)
             .Include(b => b.Users)
+            .OrderBy(b => b.PublishedAt)
+            .Where(b => b.IsPublished || creator)
             .AsQueryable();
-
-        if (isFeatured is not null)
-        {
-            blogsQuery = blogsQuery.Where(b => b.IsFeatured == isFeatured);
-        }
         
         if (categories is not null)
         {
@@ -38,7 +36,7 @@ public class BlogRepository(HestiaDbContext dbContext) : IBlogRepository
         
         if (user is not null)
         {
-            blogsQuery = blogsQuery.Where(p => p.Users.Any(u => u.Name.Equals(user, StringComparison.CurrentCultureIgnoreCase)));
+            blogsQuery = blogsQuery.Where(p => p.Users.Any(u => u.Name == user));
         }
 
         List<Blog> blogs = await blogsQuery
@@ -94,26 +92,21 @@ public class BlogRepository(HestiaDbContext dbContext) : IBlogRepository
         await dbContext.Blogs.AddAsync(entity).ConfigureAwait(false);
         return entity;
     }
-
-    public async Task<Blog> UpdateAsync(int id, Blog entity)
+    
+    public async Task AddUserToBlogAsync(int blogId, int userId)
     {
-        Blog? existingBlog = await dbContext.Blogs.FindAsync(id);
+        Blog? blog = await dbContext.Blogs.FindAsync(blogId);
 
-        if (existingBlog is null)
+        if (blog is not null)
         {
-            throw new BlogNotFoundException(id);
-        }
-        
-        foreach (PropertyInfo property in typeof(Blog).GetProperties())
-        {
-            object? newValue = property.GetValue(entity);
-            if (newValue != null)
+            User? user = await dbContext.Users.FindAsync(userId);
+
+            if (user is not null)
             {
-                property.SetValue(existingBlog, newValue);
+                blog.Users ??= [];
+                blog.Users.Add(user);
             }
         }
-
-        return entity;
     }
 
     public Task<bool> DeleteAsync(int id)

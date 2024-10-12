@@ -4,6 +4,6 @@ namespace Hestia.Domain.Models;
 
 public abstract class Model<TKey> where TKey : IEquatable<TKey>
 {
-    [Key]
+    [Required, Key]
     public TKey Id { get; set; } = default!;
 }

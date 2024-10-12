@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Hestia.Application.Dtos.Users;
 using Hestia.Application.Result;
@@ -8,7 +9,7 @@ using Hestia.Domain.Result;
 
 namespace Hestia.Application.Services.Users;
 
-public class UserService(IUserRepository userRepository, IMapper mapper)
+public partial class UserService(IUserRepository userRepository, IMapper mapper)
 {
     public async Task<IResult<UserDto?>> GetAsync(int id)
     {
@@ -117,47 +118,6 @@ public class UserService(IUserRepository userRepository, IMapper mapper)
         }
     }
 
-    public async Task<IResult<UserDto>> UpdateAsync(int id, UserDto user)
-    {
-        try
-        {
-            User? existingUser = await userRepository.GetAsync(id);
-
-            if (existingUser is null)
-            {
-                return new ServiceResult<UserDto>
-                {
-                    Data = null,
-                    Success = false,
-                    Message = "User not found"
-                };
-            }
-
-            existingUser.Name = user.Name;
-            existingUser.Email = user.Email;
-            existingUser.Image = user.Image;
-            existingUser.Role = user.Role;
-
-            await userRepository.SaveChangesAsync();
-            
-            return new ServiceResult<UserDto>
-            {
-                Data = mapper.Map<UserDto>(existingUser),
-                Success = true,
-                Message = "User updated successfully"
-            };
-        }
-        catch (Exception ex)
-        {
-            return new ServiceResult<UserDto>
-            {
-                Data = null,
-                Success = false,
-                Message = ex.Message
-            };
-        }
-    }
-
     public async Task<IResult<UserDto>> DeleteAsync(int id)
     {
         try
@@ -234,7 +194,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper)
         }
     }
 
-    public async Task<IResult<UserDto?>> UpdateNameAndBioAsync(int userId, string name, string bio)
+    public async Task<IResult<UserDto?>> UpdateNameAndBioAsync(int userId, string name, string? bio)
     {
         Dictionary<string, string[]> errors = new();
         
@@ -243,14 +203,19 @@ public class UserService(IUserRepository userRepository, IMapper mapper)
             errors.Add(nameof(name), ["Name must be between 3 and 24 characters"]);
         }
         
-        if (bio.Length is > 160 or < 5)
-        {
-            errors.Add(nameof(bio), ["Bio must be between 5 and 160 characters"]);
-        }
-        
         if (name.Contains(' '))
         {
             errors.Add(nameof(name), ["Name cannot contain spaces"]);
+        }
+        
+        if (UsernameRegex().IsMatch(name))
+        {
+            errors.Add(nameof(name), ["Name can only contain letters and numbers"]);
+        }
+        
+        if (bio?.Length is > 128)
+        {
+            errors.Add(nameof(bio), ["Bio must be less than 128 characters"]);
         }
 
         if (errors.Count > 0)
@@ -263,6 +228,8 @@ public class UserService(IUserRepository userRepository, IMapper mapper)
                 Errors = errors
             };
         }
+        
+        bio = string.IsNullOrWhiteSpace(bio) ? null : bio;
         
         try
         {
@@ -306,4 +273,7 @@ public class UserService(IUserRepository userRepository, IMapper mapper)
         await userRepository.UpdateOAuthIdAsync(userId, provider, oAuthUserId);
         await userRepository.SaveChangesAsync();
     }
+
+    [GeneratedRegex("[^a-zA-Z0-9]")]
+    private static partial Regex UsernameRegex();
 }

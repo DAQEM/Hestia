@@ -19,10 +19,10 @@ namespace Hestia.API.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     ParentId = table.Column<int>(type: "integer", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
-                    ImageUrl = table.Column<string>(type: "text", nullable: true)
+                    ImageUrl = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,16 +41,16 @@ namespace Hestia.API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false),
-                    Summary = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Summary = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
-                    ImageUrl = table.Column<string>(type: "text", nullable: false),
+                    ImageUrl = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     PublishedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
-                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false)
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -63,8 +63,8 @@ namespace Hestia.API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    State = table.Column<string>(type: "text", nullable: false),
-                    ReturnUri = table.Column<string>(type: "text", nullable: false),
+                    State = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    ReturnUri = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
                     Provider = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: true),
                     ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
@@ -80,8 +80,8 @@ namespace Hestia.API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -95,8 +95,8 @@ namespace Hestia.API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,26 +109,26 @@ namespace Hestia.API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Summary = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Summary = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false),
-                    ImageUrl = table.Column<string>(type: "text", nullable: false),
-                    BannerUrl = table.Column<string>(type: "text", nullable: true),
-                    GitHubUrl = table.Column<string>(type: "text", nullable: true),
-                    CurseForgeId = table.Column<string>(type: "text", nullable: true),
-                    CurseForgeUrl = table.Column<string>(type: "text", nullable: true),
-                    CurseForgeDownloads = table.Column<long>(type: "bigint", nullable: false, defaultValue: 0L),
-                    ModrinthId = table.Column<string>(type: "text", nullable: true),
-                    ModrinthUrl = table.Column<string>(type: "text", nullable: true),
-                    ModrinthDownloads = table.Column<long>(type: "bigint", nullable: false, defaultValue: 0L),
-                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false),
-                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
+                    Slug = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    ImageUrl = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    BannerUrl = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    GitHubUrl = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    CurseForgeId = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: true),
+                    CurseForgeUrl = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    CurseForgeDownloads = table.Column<long>(type: "bigint", nullable: true),
+                    ModrinthId = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: true),
+                    ModrinthUrl = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
+                    ModrinthDownloads = table.Column<long>(type: "bigint", nullable: true),
+                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     ShouldSync = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     SyncedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false),
-                    Loaders = table.Column<int>(type: "integer", nullable: false)
+                    Loaders = table.Column<int>(type: "integer", nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
                 {
@@ -145,17 +145,17 @@ namespace Hestia.API.Migrations
                     Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Slug = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Host = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    Port = table.Column<int>(type: "integer", nullable: false),
+                    Port = table.Column<int>(type: "integer", nullable: false, defaultValue: 25565),
                     Version = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
                     Description = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IsPublished = table.Column<bool>(type: "boolean", nullable: false),
-                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false),
-                    IsWhitelisted = table.Column<bool>(type: "boolean", nullable: false),
-                    IsOnline = table.Column<bool>(type: "boolean", nullable: false),
-                    MaxPlayers = table.Column<int>(type: "integer", nullable: false),
-                    OnlinePlayers = table.Column<int>(type: "integer", nullable: false),
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    IsFeatured = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    IsWhitelisted = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    IsOnline = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
+                    MaxPlayers = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    OnlinePlayers = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     RamMb = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
@@ -169,14 +169,14 @@ namespace Hestia.API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Bio = table.Column<string>(type: "text", nullable: true),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    Image = table.Column<string>(type: "text", nullable: true),
-                    Role = table.Column<int>(type: "integer", nullable: false),
+                    Name = table.Column<string>(type: "character varying(24)", maxLength: 24, nullable: false),
+                    Bio = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    Email = table.Column<string>(type: "character varying(320)", maxLength: 320, nullable: false),
+                    Image = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: false),
+                    Roles = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                     Joined = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastActive = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    DiscordId = table.Column<long>(type: "bigint", nullable: true)
+                    DiscordId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -285,15 +285,14 @@ namespace Hestia.API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    ParentId = table.Column<int>(type: "integer", nullable: false),
+                    ParentId = table.Column<int>(type: "integer", nullable: true),
                     ProjectId = table.Column<int>(type: "integer", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Slug = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    Slug = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
                     Content = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    PublishedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    IsPublished = table.Column<bool>(type: "boolean", nullable: false)
+                    IsPublished = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -402,14 +401,14 @@ namespace Hestia.API.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Token = table.Column<string>(type: "text", nullable: false),
+                    Token = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     UserId = table.Column<int>(type: "integer", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUsedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     RefreshExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UserAgent = table.Column<string>(type: "text", nullable: false),
-                    IpAddress = table.Column<string>(type: "text", nullable: false),
+                    IpAddress = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
                     OperatingSystem = table.Column<string>(type: "text", nullable: true),
                     Browser = table.Column<string>(type: "text", nullable: true),
                     Country = table.Column<string>(type: "text", nullable: true),

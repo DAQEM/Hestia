@@ -19,5 +19,6 @@ public static class RepositoriesExtension
         services.AddScoped<IOAuthStateRepository, OAuthStateRepository>();
         services.AddScoped<ISessionRepository, SessionRepository>();
         services.AddScoped<IBlogRepository, BlogRepository>();
+        services.AddScoped<IBlogCategoryRepository, BlogCategoryRepository>();
     }
 }

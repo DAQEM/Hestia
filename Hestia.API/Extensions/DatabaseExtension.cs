@@ -10,7 +10,7 @@ public static class DatabaseExtension
     {
         string? connectionString = configuration["Database:ConnectionString"];
         
-        if (string.IsNullOrEmpty(connectionString))
+        if (string.IsNullOrEmpty(connectionString)) 
         {
             throw new MissingEnvironmentVariableException("Database:ConnectionString");
         }

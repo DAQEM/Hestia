@@ -60,7 +60,7 @@ public class HestiaAuthenticationHandler(
         List<Claim> claims = [
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.Name),
-            new(ClaimTypes.Role, user.Role.ToString()),
+            new(ClaimTypes.Role, ((int) user.Roles).ToString()),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Authentication, token)
         ];
@@ -81,7 +81,5 @@ public class HestiaAuthenticationHandler(
         AuthenticationTicket ticket = new(principal, Scheme.Name);
         
         return AuthenticateResult.Success(ticket);
-
-        
     }
 }

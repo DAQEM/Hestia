@@ -6,7 +6,7 @@ public static class MiddlewareExtension
 {
     public static void UseHestiaMiddleware(this IApplicationBuilder builder)
     {
-        // builder.UseMiddleware<HestiaMiddleware>();
-        // builder.UseMiddleware<DatabaseExceptionMiddleware>();
+        builder.UseMiddleware<HestiaMiddleware>();
+        builder.UseMiddleware<DatabaseExceptionMiddleware>();
     }
 }

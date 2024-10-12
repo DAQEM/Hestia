@@ -1,5 +1,6 @@
 using System.Net;
 using Hestia.Application.Models.Responses;
+using Hestia.Application.Models.Responses.Auth.OAuth;
 using Hestia.Application.Options;
 using Hestia.Application.Result;
 using Hestia.Domain.Models.Auth;

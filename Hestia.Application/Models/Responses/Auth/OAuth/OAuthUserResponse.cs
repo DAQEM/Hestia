@@ -1,4 +1,4 @@
-namespace Hestia.Application.Models.Responses;
+namespace Hestia.Application.Models.Responses.Auth.OAuth;
 
 public class OAuthUserResponse
 {

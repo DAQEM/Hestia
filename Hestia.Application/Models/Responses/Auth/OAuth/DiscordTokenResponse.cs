@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Hestia.API.Models.Responses.Auth.OAuth;
+namespace Hestia.Application.Models.Responses.Auth.OAuth;
 
 public class DiscordTokenResponse
 {

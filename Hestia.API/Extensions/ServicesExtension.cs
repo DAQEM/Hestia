@@ -17,5 +17,6 @@ public static class ServicesExtension
         services.AddScoped<OAuthProviderService>();
         services.AddScoped<SessionService>();
         services.AddScoped<BlogService>();
+        services.AddScoped<BlogCategoryService>();
     }
 }

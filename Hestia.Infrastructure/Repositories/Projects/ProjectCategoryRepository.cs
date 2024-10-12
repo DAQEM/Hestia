@@ -23,11 +23,6 @@ public class ProjectCategoryRepository(HestiaDbContext dbContext) : IProjectCate
         return (await dbContext.ProjectCategories.AddAsync(entity).ConfigureAwait(false)).Entity;
     }
 
-    public Task<ProjectCategory> UpdateAsync(int id, ProjectCategory entity)
-    {
-        return Task.FromResult(dbContext.ProjectCategories.Update(entity).Entity);
-    }
-
     public Task<bool> DeleteAsync(int id)
     {
         EntityEntry<ProjectCategory> entity = dbContext.ProjectCategories.Remove(new ProjectCategory { Id = id });
@@ -37,5 +32,34 @@ public class ProjectCategoryRepository(HestiaDbContext dbContext) : IProjectCate
     public async Task SaveChangesAsync()
     {
         await dbContext.SaveChangesAsync().ConfigureAwait(false);
+    }
+
+    public Task AddRangeAsync(List<ProjectCategory> mappedCategories)
+    {
+        return dbContext.ProjectCategories.AddRangeAsync(mappedCategories);
+    }
+
+    public async Task SetProjectCategoriesAsync(int projectId, string[] categories)
+    {
+        Project? project = await dbContext.Projects
+            .Include(p => p.Categories)
+            .FirstOrDefaultAsync(p => p.Id == projectId);
+    
+        if (project is not null)
+        {
+            // Fetch the new categories to be added
+            List<ProjectCategory> newCategories = await dbContext.ProjectCategories
+                .Where(category => categories.Contains(category.Slug))
+                .ToListAsync();
+        
+            // Remove categories that are not in the new list
+            project.Categories!.RemoveAll(c => !categories.Contains(c.Slug));
+        
+            // Add new categories that are not already in the project's categories
+            foreach (ProjectCategory newCategory in newCategories.Where(newCategory => project.Categories.All(c => c.Slug != newCategory.Slug)))
+            {
+                project.Categories.Add(newCategory);
+            }
+        }
     }
 }

@@ -12,9 +12,24 @@ public class OAuthStateRepository(HestiaDbContext dbContext) : IOAuthStateReposi
         return await dbContext.OAuthStates.FindAsync(id);
     }
 
-    public Task<OAuthState?> GetByStateAsync(string state)
+    public async Task<OAuthState?> GetByStateAsync(string state)
     {
-        return dbContext.OAuthStates.FirstOrDefaultAsync(s => s.State == state);
+        OAuthState? result = await dbContext.OAuthStates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.State == state);
+        
+        if (result is not null)
+        {
+            dbContext.OAuthStates.Remove(result);
+            
+            await dbContext.OAuthStates
+                .Where(s => s.ExpiresAt < DateTime.UtcNow)
+                .ForEachAsync(s => dbContext.OAuthStates.Remove(s));
+            
+            await dbContext.SaveChangesAsync();
+        }
+        
+        return result;
     }
 
     public async Task<List<OAuthState>> GetAllAsync()
@@ -26,12 +41,6 @@ public class OAuthStateRepository(HestiaDbContext dbContext) : IOAuthStateReposi
     {
         await dbContext.OAuthStates.AddAsync(entity);
         return entity;
-    }
-
-    public Task<OAuthState> UpdateAsync(int id, OAuthState entity)
-    {
-        dbContext.OAuthStates.Update(entity);
-        return Task.FromResult(entity);
     }
 
     public async Task<bool> DeleteAsync(int id)

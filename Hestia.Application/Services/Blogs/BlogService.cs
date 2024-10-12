@@ -9,9 +9,9 @@ namespace Hestia.Application.Services.Blogs;
 
 public class BlogService(IBlogRepository blogRepository, IMapper mapper)
 {
-    public async Task<IResult<List<BlogDto>>> SearchBlogsAsync(string? query, int page, int pageSize, bool? isFeatured, string[]? categories, string? user)
+    public async Task<IResult<List<BlogDto>>> SearchBlogsAsync(string? query, int page, int pageSize, string[]? categories, string? user, bool creator = false)
     {
-        PagedResult<List<Blog>> pagedResult = await blogRepository.SearchAsync(query, page, pageSize, isFeatured, categories, user);
+        PagedResult<List<Blog>> pagedResult = await blogRepository.SearchAsync(query, page, pageSize, categories, user, creator);
 
         return new PagedResult<List<BlogDto>>
         {
@@ -31,7 +31,20 @@ public class BlogService(IBlogRepository blogRepository, IMapper mapper)
 
         return blog is null ? BlogNotFoundResult : BlogFoundResult(blog);
     }
-    
+
+    public async Task<IResult<BlogDto>> AddBlogAsync(BlogDto blogDto)
+    {
+        Blog blog = mapper.Map<Blog>(blogDto);
+        Blog addedBlog = await blogRepository.AddAsync(blog);
+        await blogRepository.SaveChangesAsync();
+        return new ServiceResult<BlogDto>
+        {
+            Data = mapper.Map<BlogDto>(addedBlog),
+            Success = true,
+            Message = "Blog added"
+        };
+    }
+
     private static ServiceResult<BlogDto?> BlogNotFoundResult => new()
     {
         Data = null,

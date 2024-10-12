@@ -178,7 +178,6 @@ public class HestiaDbContext : DbContext
             .IsUnique();
         
         #endregion
-        
         #region Server Configuration
         
         builder.Entity<Server>()
@@ -200,7 +199,6 @@ public class HestiaDbContext : DbContext
             .IsUnique();
         
         #endregion
-        
         #region Wiki Configuration
         
         builder.Entity<Wiki>()

@@ -1,4 +1,4 @@
-namespace Hestia.API.Models.Responses.Auth;
+namespace Hestia.Application.Models.Responses.Auth.Sessions;
 
 public class SessionTokenResponse
 {

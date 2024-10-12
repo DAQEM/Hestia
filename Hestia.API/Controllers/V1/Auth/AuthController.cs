@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.RegularExpressions;
-using Hestia.API.Models.Responses.Auth;
 using Hestia.Application.Dtos.Auth;
 using Hestia.Application.Dtos.Users;
-using Hestia.Application.Models.Responses;
+using Hestia.Application.Models.Responses.Auth.OAuth;
+using Hestia.Application.Models.Responses.Auth.Sessions;
 using Hestia.Application.Options;
 using Hestia.Application.Services.Auth;
 using Hestia.Application.Services.Users;
@@ -14,6 +14,8 @@ using Hestia.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using MyCSharp.HttpUserAgentParser;
+using MyCSharp.HttpUserAgentParser.Providers;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Hestia.API.Controllers.V1.Auth;
@@ -27,6 +29,7 @@ public class AuthController(
     OAuthStateService oAuthStateService,
     UserService userService,
     SessionService sessionService,
+    IHttpUserAgentParserProvider userAgentParser,
     IOptions<AuthOptions> authOptions,
     IOptions<ApplicationOptions> applicationOptions)
     : HestiaController(logger)
@@ -65,8 +68,13 @@ public class AuthController(
         OperationId = "Callback",
         Tags = ["Auth"]
     )]
-    public async Task<IActionResult> Callback([FromQuery, Required] string code, [FromQuery, Required] string state)
+    public async Task<IActionResult> Callback([FromQuery] string? code, [FromQuery, Required] string state)
     {
+        if (string.IsNullOrEmpty(code))
+        {
+            return Redirect(_applicationOptions.AsteriaUrl);
+        }
+        
         OAuthState? oAuthState = await oAuthStateService.GetStateAsync(state);
 
         if (oAuthState is null)
@@ -117,7 +125,7 @@ public class AuthController(
                     Name = oAuthUser.Username,
                     Email = oAuthUser.Email,
                     Image = oAuthUser.ImageUrl,
-                    Role = Role.Player,
+                    Roles = Roles.Player,
                     DiscordId = oAuthState.Provider == OAuthProvider.Discord ? long.Parse(oAuthUser.Id) : null
                 });
                 
@@ -135,7 +143,7 @@ public class AuthController(
             {
                 return BadRequest("User agent required");
             }
-            
+
             IPAddress? ipAddress = HttpContext.Connection.RemoteIpAddress;
             
             if (ipAddress is null)
@@ -143,6 +151,8 @@ public class AuthController(
                 return BadRequest("IP address required");
             }
             
+            HttpUserAgentInformation httpUserAgentInformation = userAgentParser.Parse(userAgent);
+
             SessionDto session = new()
             {
                 Token = "ses_" + TokenService.GenerateToken(60),
@@ -152,7 +162,9 @@ public class AuthController(
                 ExpiresAt = DateTime.UtcNow.AddHours(1),
                 RefreshExpiresAt = DateTime.UtcNow.AddDays(90),
                 UserAgent = userAgent,
-                IpAddress = ipAddress.ToString()
+                IpAddress = ipAddress.ToString(),
+                Browser = httpUserAgentInformation.Name,
+                OperatingSystem = httpUserAgentInformation.Platform?.Name ?? "Unknown",
             };
             
             await sessionService.AddAsync(session);
@@ -171,24 +183,21 @@ public class AuthController(
             
             return Redirect(oAuthState.ReturnUri);
         }
-        else
+
+        // User is linking an account
+        if (existingUserResult.Success)
         {
-            // User is linking an account
-            if (existingUserResult.Success)
-            {
-                return BadRequest("Account already linked");
-            }
-            
-            await userService.UpdateOAuthIdAsync(oAuthState.UserId.Value, oAuthState.Provider, oAuthUser.Id);
-            
-            //TODO send mail to user to let them know their account was linked successfully
+            return BadRequest("Account already linked");
         }
+            
+        await userService.UpdateOAuthIdAsync(oAuthState.UserId.Value, oAuthState.Provider, oAuthUser.Id);
+            
+        //TODO send mail to user to let them know their account was linked successfully
 
         return Redirect(oAuthState.ReturnUri);
     }
     
     [HttpGet("logout")]
-    [Authorize]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -201,10 +210,27 @@ public class AuthController(
     public async Task<IActionResult> Logout([FromQuery] string? returnUrl)
     {
         string? token = User.GetToken();
+
+        if (token is null)
+        {
+            if (Request.Cookies.TryGetValue(_authOptions.Cookie.Name, out string? cookieToken))
+            {
+                token = cookieToken;
+            }
+        }
         
-        if (token is null) return Unauthorized();
+        if (token is null)
+        {
+            if (returnUrl is not null)
+            {
+                return Redirect(returnUrl);
+            }
+            return Unauthorized();
+        }
         
         await sessionService.DeleteByTokenAsync(token);
+        
+        Response.Cookies.Delete(_authOptions.Cookie.Name);
         
         return returnUrl is not null ? Redirect(returnUrl) : NoContent();
     }

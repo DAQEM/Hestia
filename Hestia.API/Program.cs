@@ -1,9 +1,11 @@
 using System.Reflection;
 using Hestia.API.Extensions;
 using Hestia.Application.Profiles.Auth;
+using MyCSharp.HttpUserAgentParser.DependencyInjection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddHttpUserAgentParser();
 builder.Services.AddHttpClient();
 builder.Services.AddHestiaCors();
 builder.Services.AddHestiaJson();
